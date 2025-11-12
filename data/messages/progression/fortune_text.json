@@ -1,0 +1,17 @@
+{
+  "Id": "fortune_text",
+  "Title": "Fortune",
+  "Body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  "Font": "system.ttf",
+  "Title_Font_Size": 40,
+  "Body_Font_Size": 30,
+  "Wrap_Width": 300,
+  "Text_Color": [
+    255,
+    255,
+    255
+  ],
+  "Font_Size": 20,
+  "X_offset": 40,
+  "Y_offset": 0
+}

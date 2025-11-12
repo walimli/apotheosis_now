@@ -1,0 +1,44 @@
+{
+  "dialogueTreeID": "skull_shrine_dialogue",
+  "startNode": "shrine_event_start",
+  "nodes": {
+    "shrine_event_start": {
+      "type": "dialogue",
+      "character": "Skull Shrine",
+      "text": "The flame sputters, and then grows bright, anticipating sacrifice.",
+      "nextNode": "shrine_event_choice"
+    },
+    "shrine_event_choice": {
+      "type": "choice",
+      "choices": [
+        {
+          "text": "Summon Lost Soul",
+          "nextNode": "choice_1",
+          "soul_cost": 50,
+          "event": "summon_wisp",
+          "condition": "soul_attribute_1"
+        },
+        {
+          "text": "Summon Hungry Ghosts",
+          "nextNode": "choice_2",
+          "event": "mob_swarm",
+          "condition": "soul_attribute_2"
+        }
+      ]
+    },
+    "choice_1": {
+      "type": "dialogue",
+      "character": "Skull Shrine",
+      "text": "The flame rises.",
+      "nextNode": null,
+      "event": "end_dialogue"
+    },
+    "choice_2": {
+      "type": "dialogue",
+      "character": "Skull Shrine",
+      "text": "Drums. Drums in the deep. ",
+      "nextNode": null,
+      "event": "end_dialogue"
+    }
+  }
+}

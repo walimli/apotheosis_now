@@ -1,0 +1,25 @@
+{
+  "skull_shrine": {
+    "display_name": "Skull Shrine",
+    "image_path": "assets/placeables/skull_shrine/skull_shrine_sheet.png",
+    "animation": true,
+    "animation_sheet": {
+      "sheet": "assets/placeables/skull_shrine/skull_shrine_sheet.png",
+      "columns": 6,
+      "rows": 3
+    },
+    "collision_polygon": [[0, 0], [64, 0], [64, 64], [0, 64]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 64, "height_px": 64, "offset_x": 0, "offset_y": 0 },
+    "scale": 1.0,
+    "z_index": 3,
+    "durability_max": 4,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "interaction_event": "shrine_event",
+    "safe_zone": { "radius": 2 },
+    "drops": [
+      { "item": "skull_shrine_coin", "qty_min": 1, "qty_max": 1 }
+    ]
+  }
+}

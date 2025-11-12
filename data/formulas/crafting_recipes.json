@@ -1,0 +1,94 @@
+[
+  {
+    "id": "craft_health_pill",
+    "inputs": [
+      { "item": "treasure_coin", "qty": 1 },
+      { "item": "plant_coin", "qty": 1 }
+    ],
+    "output": { "item": "health_pill", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 0,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_glow_spore",
+    "inputs": [
+      { "item": "treasure_coin", "qty": 1 },
+      { "item": "spore_coin", "qty": 1 }
+    ],
+    "output": { "item": "glow_spore_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 1,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_skull_candle_coin",
+    "inputs": [
+      { "item": "treasure_coin", "qty": 1 },
+      { "item": "stone_coin", "qty": 1 },
+      { "item": "bone_dust", "qty": 1 }
+    ],
+    "output": { "item": "skull_candle_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 2,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_skull_shrine_coin",
+    "inputs": [
+      { "item": "stone_coin", "qty": 1 },
+      { "item": "treasure_coin", "qty": 1 },
+      { "item": "spore_coin", "qty": 1 }
+    ],
+    "output": { "item": "skull_shrine_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 3,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_stone_fence",
+    "inputs": [
+      { "item": "stone_coin", "qty": 1 },
+      { "item": "bone_dust", "qty": 1 }
+      
+    ],
+    "output": { "item": "stone_fence_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 0,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_bucket_coin",
+    "inputs": [
+      { "item": "stone_coin", "qty": 1 },
+      { "item": "bone_dust", "qty": 1 }
+    ],
+    "output": { "item": "bucket_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 0,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_wood_fence_coin",
+    "inputs": [
+      { "item": "log_coin", "qty": 1 },
+      { "item": "bone_dust", "qty": 1 }
+    ],
+    "output": { "item": "wood_fence_coin", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 1,
+    "soul_cost": 1
+  },
+  {
+    "id": "craft_soul_pill",
+    "inputs": [
+      { "item": "treasure_coin", "qty": 1 },
+      { "item": "bone_dust", "qty": 1 }
+    ],
+    "output": { "item": "soul_pill", "qty": 1 },
+    "success_rate": 1.0,
+    "health_cost": 0,
+    "soul_cost": 1
+  }
+
+]

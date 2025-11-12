@@ -1,0 +1,79 @@
+{
+    "metadata": {
+      "description": "Inventory items categorized as Medallions (non-Coin items).",
+      "coordinate_system": "local_64x64",
+      "defaults": {
+        "scale": 1.0,
+        "z_index": 0,
+        "object_type": "inventory_item",
+        "stackable": true,
+        "max_stack": 64,
+        "placeable": false
+      }
+    },
+    "inventory_items": [
+      
+      {
+        "id": "health_medallion",
+        "display_name": "Health Pill",
+        "image_path": "assets/coins/inventory/health_pill.png",
+        "placeable": true,
+        "pill": true,
+        "pill_effect": "health",
+        "pill_magnitude": 10,
+        "description": "Restores health when consumed"
+      },
+      {
+        "id": "soul_medallion",
+        "display_name": "Soul Pill",
+        "image_path": "assets/coins/inventory/soul_pill.png",
+        "placeable": true,
+        "pill": true,
+        "pill_effect": "soul",
+        "pill_magnitude": 100,
+        "description": "Restores soul when consumed"
+      },
+      {
+        "id": "pick_wooden_medallion",
+        "display_name": "Wooden Pickaxe",
+        "image_path": "assets/objects/tools/pick_wooden.png",
+        "stackable": false,
+        "max_stack": 1,
+        "description": "Starter pickaxe for harvesting tiles"
+      }
+      {
+        "id": "stone_fence_coin",
+        "display_name": "Stone Fence",
+        "image_path": "assets/coins/inventory/stone_fence_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "wood_fence_coin",
+        "display_name": "Wood Fence",
+        "image_path": "assets/coins/inventory/wood_fence_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "skull_candle_coin",
+        "display_name": "Skull Candle",
+        "image_path": "assets/coins/inventory/skull_candle_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "bucket_coin",
+        "display_name": "Bucket",
+        "image_path": "assets/coins/inventory/bucket_coin.png",
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "skull_shrine_coin",
+        "display_name": "Skull Shrine",
+        "image_path": "assets/coins/inventory/skull_shrine_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+    ]
+  }

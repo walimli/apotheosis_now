@@ -1,0 +1,165 @@
+{
+    "stone_fences": {
+      "stone_fence_blc.png": {
+        "id": "wfblc",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_blc.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["top", "right"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_brc.png": {
+        "id": "wfbrc",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_brc.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["top", "left"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_hcon.png": {
+        "id": "wfhcon",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_hcon.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["left", "right"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_left.png": {
+        "id": "wfl",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_left.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["right"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_right.png": {
+        "id": "wfr",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_right.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["left"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_tlc.png": {
+        "id": "wftlc",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_tlc.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["bottom", "right"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_trc.png": {
+        "id": "wftrc",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_trc.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["bottom", "left"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_vcon.png": {
+        "id": "wfvcon",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_vcon.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["top", "bottom"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_top.png": {
+        "id": "wft",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_top.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["bottom"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      },
+      "stone_fence_bottom.png": {
+        "id": "wfb",
+        "image_path": "assets/placeables/fences/stone_fence/stone_fence_bottom.png",
+        "collision_polygon": [[63, 1], [63, 63], [1, 63], [1, 1]],
+        "collision_offsets": { "x": 0, "y": 0 },
+        "connecting_edges": ["top"],
+        "scale": 1.0,
+        "z_index": 2,
+        "ysort_anchor_fraction": 0.6,
+        "ysort_offset_px": 0,
+        
+        "placeable": true,
+        "durability_max": 3,
+        "xp_reward": 1,
+        "drop": { "item": "stone_fence_coin", "qty_min": 1, "qty_max": 1 }
+      }
+    }
+  }
+  

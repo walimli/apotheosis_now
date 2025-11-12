@@ -1,0 +1,25 @@
+{
+  "skull_candle": {
+    "display_name": "Skull Candle",
+    "image_path": "assets/placeables/skull_candle/skull_candle_sheet.png",
+    "animation": true,
+    "animation_sheet": {
+      "sheet": "assets/placeables/skull_candle/skull_candle_sheet.png",
+      "columns": 6,
+      "rows": 3
+    },
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 3,
+    "durability_max": 6,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "protection": { "radius": 2 },
+    "safe_zone": { "radius": 2 },
+    "drops": [
+      { "item": "skull_candle_coin", "qty_min": 1, "qty_max": 1 }
+    ]
+  }
+}

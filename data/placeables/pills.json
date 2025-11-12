@@ -1,0 +1,13 @@
+{
+  "health_pill": {
+    "display_name": "Health Pill",
+    "image_path": "assets/coins/inventory/health_pill.png",
+    "animation": false,
+    "scale": 1.0,
+    "z_index": 3,
+    "durability_max": 1,
+    "ysort_anchor_fraction": 0.5,
+    "ysort_offset_px": 0
+  }
+}
+

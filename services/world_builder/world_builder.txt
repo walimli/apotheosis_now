@@ -1,0 +1,42 @@
+﻿World Builder Package Overview
+------------------------------
+
+Purpose
+    The world_builder package procedurally generates deterministic 32×32 tile chunks for the floating-island map using NumPy and Perlin noise. It ensures every chunk has playable space (minimum island size) and bridge connections before any rendering or gameplay systems touch the data.
+
+Components
+    manager.py
+        Exposes the WorldBuilder class. It orchestrates the generation pipeline: noise creation, thresholding, minimum-island enforcement, and bridge placement. Returns pairs of (tile_array, object_list) for a given chunk coordinate.
+
+    noise.py
+        Implements a multi-octave Perlin noise generator keyed by seed and chunk coordinates. Produces float arrays in [-1, 1] that drive land shape.
+
+    threshold.py
+        Converts noise arrays into binary land masks based on a configurable threshold.
+
+    bridges.py
+        Finds connected land components and adds bridge tiles between islands using Bresenham lines. Also exposes find_islands for reuse.
+
+    __init__.py
+        Re-exports WorldBuilder for convenient importing.
+
+Key Constants / Defaults
+    Chunk size: 32×32 tiles.
+    Tile codes: 0 (void), 1 (land), 2 (bridge).
+    Default noise scale: 0.05; octaves: 3; persistence: 0.5.
+    Land threshold: 0.4 (with iterative lowering to hit minimum island size).
+    Minimum island size: 64 connected land tiles.
+    Bridge connection probability: 0.5 (deterministic via chunk seed).
+
+Outputs / Interfaces for Other Systems
+    WorldBuilder.generate_chunk(chunk_x, chunk_y)
+        Returns (tiles, objects):
+            tiles — NumPy int8 array representing the chunk’s terrain.
+            objects — empty list (reserved for future procedural placement).
+        Deterministic across runs for the same seed and coordinates, enabling save/load systems and renderers to request chunks on demand.
+
+    bridges.find_islands
+        Utility for future modules (e.g., gameplay logic) needing connected-component data for land tiles.
+
+Notes on Scope
+    The package covers only initial generation. Once a chunk exists, subsequent systems (renderer, future world updater, persistence layer) handle modifications, object placement, and state tracking.

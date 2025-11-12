@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "events": {
+    "time.dawn_started": "assets/sounds/environment_sounds/neat.wav",
+    "time.day_started": "assets/sounds/environment_sounds/neat.wav",
+    "time.noon_reached": "assets/sounds/environment_sounds/neat.wav",
+    "time.dusk_started": "assets/sounds/environment_sounds/neat.wav",
+    "time.night_started": "assets/sounds/environment_sounds/neat.wav",
+    "time.midnight_reached": "assets/sounds/environment_sounds/neat.wav",
+    "time.heartbeat": "assets/sounds/environment_sounds/heartbeat.wav",
+    "ui.button.hover": "assets/sounds/ui_sounds/mousehover.mp3",
+    "ui.button.click": "assets/sounds/ui_sounds/mouseselect.mp3",
+    "ui.pause.toggle": "assets/sounds/ui_sounds/boop.mp3",
+    "mob.spawn": "assets/sounds/mob_sounds/mobspawn.mp3",
+    "mob.attack": "assets/sounds/mob_sounds/mobattack.mp3",
+    "player.attack": "assets/sounds/player_sounds/sword.wav",
+    "player.health_lost": "assets/sounds/player_sounds/healthlost.wav",
+    "player.inventory.added": "assets/sounds/ui_sounds/additem.wav",
+    "player.inventory.removed": "assets/sounds/ui_sounds/removeitem.wav",
+    "player.movement": "assets/sounds/player_sounds/foot1.wav"
+  },
+  "music": {
+    "state.title": "assets/sounds/music/title_state_music.mp3",
+    "state.play": "assets/sounds/music/play_state_music.mp3",
+    "state.pause": "assets/sounds/music/pause_state_music.mp3",
+    "state.progression": "assets/sounds/music/progression_state_music.mp3"
+  }
+}
+

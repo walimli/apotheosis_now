@@ -1,0 +1,70 @@
+{
+  "crystal_seedling": {
+    "display_name": "Crystal Seed",
+    "image_path": "assets/placeables/crystal_colony/crystal_1.png",
+    "animation": false,
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 2,
+    "dawn_growth": true,
+    "durability_max": 6,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "drops": [
+      { "item": "crystal_coin", "qty_min": 1, "qty_max": 1 }
+    ]
+  },
+  "crystal_sapling": {
+    "display_name": "Crystal Sapling",
+    "image_path": "assets/placeables/crystal_colony/crystal_2.png",
+    "animation": false,
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 2,
+    "dawn_growth": true,
+    "durability_max": 6,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "drops": [
+      { "item": "crystal_coin", "qty_min": 1, "qty_max": 2 }
+    ]
+  },
+  "crystal_mature": {
+    "display_name": "Mature Crystal",
+    "image_path": "assets/placeables/crystal_colony/crystal_3.png",
+    "animation": false,
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 2,
+    "dawn_growth": true,
+    "durability_max": 6,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "drops": [
+      { "item": "crystal_coin", "qty_min": 2, "qty_max": 3 }
+    ]
+  },
+  "crystal_ancient": {
+    "display_name": "Ancient Crystal",
+    "image_path": "assets/placeables/crystal_colony/crystal_4.png",
+    "animation": false,
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 2,
+    "dawn_growth": false,
+    "durability_max": 6,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0,
+    "drops": [
+      { "item": "crystal_coin", "qty_min": 3, "qty_max": 4 }
+    ]
+  }
+}

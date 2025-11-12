@@ -1,0 +1,79 @@
+{
+  "id": "wisp",
+  "category": "npc",
+  "behavior_id": "wisp",
+  "z_index": 2,
+  "xp_reward": 25,
+  "stats": {
+    "speed_px_per_s": 64,
+    "durability": 3,
+    "sight_range_px": 0,
+    "attack_range_px": 0,
+    "attack_damage": 0,
+    "attack_cooldown_s": 0
+  },
+  "collider": {
+    "anchor": "feet",
+    "capsule": {
+      "width_tiles": 0.75,
+      "height_tiles": 1.0
+    },
+    "aabb": {
+      "width_tiles": 0.75,
+      "height_tiles": 1.0,
+      "offset_x_tiles": 0.0,
+      "offset_y_tiles": 0.0
+    }
+  },
+  "assets": {
+    "registry_group_keys": {
+      "idle_down": "wisp_loop",
+      "idle_up": "wisp_loop",
+      "idle_left": "wisp_loop",
+      "idle_right": "wisp_loop",
+      "walk_down": "wisp_loop",
+      "walk_up": "wisp_loop",
+      "walk_left": "wisp_loop",
+      "walk_right": "wisp_loop",
+      "run_down": "wisp_loop",
+      "run_up": "wisp_loop",
+      "run_left": "wisp_loop",
+      "run_right": "wisp_loop",
+      "attack_down": "wisp_loop",
+      "attack_up": "wisp_loop",
+      "attack_left": "wisp_loop",
+      "attack_right": "wisp_loop",
+      "hit_down": "wisp_loop",
+      "hit_up": "wisp_loop",
+      "hit_left": "wisp_loop",
+      "hit_right": "wisp_loop",
+      "die_down": "wisp_loop",
+      "die_up": "wisp_loop",
+      "die_left": "wisp_loop",
+      "die_right": "wisp_loop"
+    },
+    "frame_width": 64,
+    "frame_height": 64
+  },
+  "spawn": {
+    "time": [
+      "story"
+    ],
+    "radius_px": [
+      0,
+      0
+    ],
+    "max_alive": 1,
+    "attempts_per_heartbeat": 0,
+    "spawn_chance": 0.0
+  },
+  "drops": [
+    {
+      "item": "bone_dust",
+      "qty_min": 1,
+      "qty_max": 1,
+      "chance": 1.0
+    }
+  ],
+  "interaction_event": "wisp_dialogue_event"
+}

@@ -1,0 +1,50 @@
+﻿World Renderer Package Overview
+--------------------------------
+
+Purpose
+    The world_renderer package is responsible for turning chunk tile arrays and object/entity data into ready-to-display pygame Surfaces. It keeps generation-free logic (caching, sprite choice, and blitting) separate from world building so that existing chunks can be re-used, updated, and visualised efficiently.
+
+Components
+    camera.py
+        Computes which chunk coordinates intersect the current camera viewport (with padding), producing a list of chunk keys that other systems should render or load.
+
+    chunk_cache.py
+        Maintains cached chunk Surfaces and remembers the last tile array for each chunk. It assigns deterministic land/bridge sprite variants, manages override sprites, and exposes surfaces for drawing.
+
+    entity_renderer.py
+        Placeholder utilities for drawing player/mob sprites directly on the screen, sorted by a simple z-order.
+
+    manager.py
+        Provides the WorldRenderer class, coordinating visible chunk rendering, object overlays, and entity drawing while delegating caching and variant work to ChunkCache. The class now seeds a lightweight rendering ECS world so new shader-driven passes (void, weather, etc.) can attach systems without modifying the legacy blit pipeline. It also drives the `systems.void.render_system.VoidRenderSystem` with a per-frame shoreline mask so the void shader can react to land edges before chunk surfaces are blitted.
+
+    object_renderer.py
+        Placeholder helpers that blit object sprites (plants, props, etc.) onto a chunk surface using tile coordinates with optional pixel offsets.
+
+    sprite_loader.py
+        Loads individual tile images from disk into pygame Surfaces and scales them to the configured tile size. It returns a dict that WorldRenderer can consume.
+
+    tile_renderer.py
+        Converts tile arrays into 2048×2048 chunk Surfaces, supporting both full renders and partial re-blits when specific tiles change.
+
+    variants.py
+        Implements deterministic weighted selection for sprite variants via VariantSelector. Used by ChunkCache to keep land and bridge tiles visually varied yet reproducible.
+
+Referenced Constants
+    ChunkCache defines default sprite-ID sets for land (1–16) and bridge (1–4, 9–12) variants when no weights are supplied.
+    TileRenderer sets default tile size to 64 pixels and chunk dimensions to 32×32 tiles (implicitly through other components).
+
+Outputs/Interfaces
+    WorldRenderer.generate_chunk(..)
+        Produces pygame Surfaces per visible chunk and blits them to the screen. Other packages can call render_visible_chunks to draw existing chunk data and update_chunk to refresh cached Surfaces after map edits.
+
+    ChunkCache
+        Exposes cached surfaces, variant tile arrays, and deterministic sprite overrides that can be reused by other systems needing pre-rendered chunk graphics.
+
+    camera.compute_visible_chunks
+        Supplies chunk coordinate lists for streaming/loading systems (world manager, asset prefetch, etc.).
+
+    sprite_loader.load_sprites
+        Returns a Mapping[int, pygame.Surface] for integrating additional renderers beyond WorldRenderer.
+
+Summary
+    world_renderer accepts chunk tiles generated elsewhere (world_builder), assigns deterministic sprite variants, caches chunk Surfaces, and renders tiles, objects, and entities against a camera. It exposes reusable utilities for chunk visibility, sprite loading, and per-chunk caching that other packages can call when handling saved chunks, updates, or custom rendering flows.

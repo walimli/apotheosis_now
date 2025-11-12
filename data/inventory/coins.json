@@ -1,0 +1,81 @@
+{
+    "metadata": {
+      "description": "Inventory items categorized as Coins (Token-style items).",
+      "coordinate_system": "local_64x64",
+      "defaults": {
+        "scale": 1.0,
+        "z_index": 0,
+        "object_type": "inventory_item",
+        "stackable": true,
+        "max_stack": 64,
+        "placeable": false
+      }
+    },
+    "inventory_items": [
+      {
+        "id": "treasure_coin",
+        "display_name": "Treasure",
+        "image_path": "assets/coins/inventory/treasure_coin.png",
+        "description": "Basic fencing material for building barriers"
+      },
+      {
+        "id": "bone_dust",
+        "display_name": "Bone Dust",
+        "image_path": "assets/coins/inventory/bone_dust_coin.png",
+        "item_type": "raw_material",
+        "max_stack": 32,
+        "description": "Raw wood from harvested trees"
+      },
+      {
+        "id": "plant_coin",
+        "display_name": "Bedlam Seeds",
+        "image_path": "assets/coins/inventory/plant_coin.png",
+        "description": "Seeds for growing Bedlam plants"
+      },
+      {
+        "id": "spore_coin",
+        "display_name": "Spores",
+        "image_path": "assets/coins/inventory/spore_coin.png",
+        "placeable": true,
+        "description": "Processed wood plank for crafting"
+      },
+      {
+        "id": "stone_coin",
+        "display_name": "Stone",
+        "image_path": "assets/coins/inventory/stone_coin.png",
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "glow_spore_coin",
+        "display_name": "Glow Spore",
+        "image_path": "assets/coins/inventory/glow_spore_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "log_coin",
+        "display_name": "Log",
+        "image_path": "assets/coins/inventory/log_coin.png",
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "crystal_coin",
+        "display_name": "Crystal Coin",
+        "image_path": "assets/coins/inventory/crystal_coin.png",
+        "placeable": true,
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "clay_coin",
+        "display_name": "Clay",
+        "image_path": "assets/coins/inventory/clay_coin.png",
+        "description": "Raw stone material from mining"
+      },
+      {
+        "id": "redrock_coin",
+        "display_name": "Redrock",
+        "image_path": "assets/coins/inventory/redrock_coin.png",
+        "description": "Raw stone material from mining"
+      }
+    ]
+  }

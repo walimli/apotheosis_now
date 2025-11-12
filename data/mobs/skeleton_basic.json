@@ -1,0 +1,81 @@
+{
+  "id": "skeleton_basic",
+  "category": "aggressive",
+  "behavior_id": "skeleton_basic",
+  "z_index": 2,
+  "xp_reward": 1,
+  "stats": {
+    "speed_px_per_s": 64,
+    "durability": 1,
+    "sight_range_px": 512,
+    "attack_range_px": 48,
+    "attack_damage": 1,
+    "attack_cooldown_s": 1
+  },
+  "collider": {
+    "anchor": "feet",
+    "capsule": {
+      "width_tiles": 0.6,
+      "height_tiles": 0.9
+    }
+  },
+  "assets": {
+    "registry_group_keys": {
+      "idle_down": "skeleton_idle_down",
+      "idle_up": "skeleton_idle_up",
+      "idle_left": "skeleton_idle_left",
+      "idle_right": "skeleton_idle_right",
+      "walk_down": "skeleton_run_down",
+      "walk_up": "skeleton_run_up",
+      "walk_left": "skeleton_run_left",
+      "walk_right": "skeleton_run_right",
+      "run_down": "skeleton_run_down",
+      "run_up": "skeleton_run_up",
+      "run_left": "skeleton_run_left",
+      "run_right": "skeleton_run_right",
+      "attack_down": "skeleton_attack_down",
+      "attack_up": "skeleton_attack_up",
+      "attack_left": "skeleton_attack_left",
+      "attack_right": "skeleton_attack_right",
+      "hit_down": "skeleton_hit_down",
+      "hit_up": "skeleton_hit_up",
+      "hit_left": "skeleton_hit_left",
+      "hit_right": "skeleton_hit_right",
+      "die_down": "skeleton_die_down",
+      "die_up": "skeleton_die_up",
+      "die_left": "skeleton_die_left",
+      "die_right": "skeleton_die_right"
+    },
+    "frame_width": 48,
+    "frame_height": 48
+  },
+  "spawn": {
+    "time": [
+      "night"
+    ],
+    "radius_px": [
+      128,
+      512
+    ],
+    "max_alive": 12,
+    "attempts_per_heartbeat": 1,
+    "spawn_chance": 0.5
+  },
+  "attack": {
+    "archetype": "melee_box",
+    "windup_ms": 150,
+    "active_ms": 180,
+    "recover_ms": 220,
+    "box_depth_tiles": 0.6,
+    "knockback_tiles_per_s": 0.0
+  },
+  "drops": [
+    {
+      "item": "bone_dust",
+      "qty_min": 1,
+      "qty_max": 2,
+      "chance": 1.0
+    }
+  ]
+ 
+}

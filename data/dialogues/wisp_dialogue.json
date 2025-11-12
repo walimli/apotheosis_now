@@ -1,0 +1,40 @@
+{
+  "dialogueTreeID": "wisp_dialogue",
+  "startNode": "start",
+  "nodes": {
+    "start": {
+      "type": "dialogue",
+      "character": "Wisp",
+      "text": "I live! No? How unfortunate.",
+      "nextNode": "choice_1"
+    },
+    "choice_1": {
+      "type": "choice",
+      "choices": [
+        {
+          "text": "Who were you?",
+          "nextNode": "answer_1"
+        },
+        {
+          "text": "Goodbye",
+          "event": "end_dialogue"
+        }
+      ]
+    },
+    "answer_1": {
+      "type": "dialogue",
+      "character": "Wisp",
+      "text": "I don't remember.",
+      "nextNode": null,
+      "event": "end_dialogue"
+    },
+    "answer_2": {
+      "type": "dialogue",
+      "character": "Wisp",
+      "text": "A warrior. I think. I remember blood, and blades, and a flash before the darkness too me. If I have more time, perhaps I will remember more.",
+      "nextNode": null,
+      "event": "end_dialogue",
+      "condition": "game_day_2"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "seedling": {
+    "display_name": "Planted Spore",
+    "image_path": "assets/objects/grass_shrubs/bedlam_fauna/flower_1.png",
+    "animation": false,
+    "collision_polygon": [[24, 32], [24, 64], [40, 64], [40, 32]],
+    "collision_offsets": { "x": 0, "y": 0 },
+    "collision_aabb": { "width_px": 16, "height_px": 32, "offset_x": 24, "offset_y": 32 },
+    "scale": 1.0,
+    "z_index": 3,
+    "durability_max": 1,
+    "ysort_anchor_fraction": 0.7,
+    "ysort_offset_px": 0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "Id": "survivor_one",
+  "Title": "Achievement: Survivor 1",
+  "Body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  "Trigger": "time.day_2_start",
+  "Font": "system.ttf",
+  "Title_Font_Size": 32,
+  "Body_Font_Size": 20,
+  "Wrap_Width": 520,
+  "Text_Color": [255, 255, 255],
+  "Font_Size": 20,
+  "X_offset": 0,
+  "Y_offset": 0
+}

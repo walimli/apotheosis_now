@@ -1,0 +1,49 @@
+{
+  "INTERACT_PRIMARY": [
+    {"trigger": ["key", "K_SPACE"]}
+  ],
+  "USE_INVENTORY": [
+    {"trigger": ["mouse_button", "MOUSE_LEFT"]}
+  ],
+  "VARIANT_CYCLE": [
+    {"trigger": ["mouse_button", "MOUSE_RIGHT"]}
+  ],
+  "PILL_ACTIVATE": [
+    {"trigger": ["key", "K_e"]}
+  ],
+  "PAUSE_TOGGLE": [
+    {"trigger": ["key", "K_ESCAPE"]}
+  ],
+  "INVENTORY_LOCK_TOGGLE": [
+    {"trigger": ["key", "K_q"]}
+  ],
+  "HOTBAR_SCROLL": [
+    {"trigger": ["mouse_wheel", "UP"], "value": 1},
+    {"trigger": ["mouse_wheel", "DOWN"], "value": -1}
+  ],
+  "HOTBAR_SELECT": [
+    {"trigger": ["key", "K_1"], "value": 0},
+    {"trigger": ["key", "K_2"], "value": 1},
+    {"trigger": ["key", "K_3"], "value": 2},
+    {"trigger": ["key", "K_4"], "value": 3},
+    {"trigger": ["key", "K_5"], "value": 4},
+    {"trigger": ["key", "K_6"], "value": 5},
+    {"trigger": ["key", "K_7"], "value": 6},
+    {"trigger": ["key", "K_8"], "value": 7},
+    {"trigger": ["key", "K_9"], "value": 8}
+  ],
+  "SCROLL": [
+    {"trigger": ["mouse_wheel", "UP"], "value": 1},
+    {"trigger": ["mouse_wheel", "DOWN"], "value": -1}
+  ],
+  "MOVE": [
+    {"trigger": ["key_axis", "K_w"], "value": [0, -1]},
+    {"trigger": ["key_axis", "K_s"], "value": [0, 1]},
+    {"trigger": ["key_axis", "K_a"], "value": [-1, 0]},
+    {"trigger": ["key_axis", "K_d"], "value": [1, 0]},
+    {"trigger": ["key_axis", "K_UP"], "value": [0, -1]},
+    {"trigger": ["key_axis", "K_DOWN"], "value": [0, 1]},
+    {"trigger": ["key_axis", "K_LEFT"], "value": [-1, 0]},
+    {"trigger": ["key_axis", "K_RIGHT"], "value": [1, 0]}
+  ]
+}
