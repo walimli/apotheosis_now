@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import pygame
 
-from systems.player.components.inventory_package.ui.hotbar import HotbarUI
-from .soul import Soul
+from .inventory_bar import HotbarUI
+
+ASSET_ROOT = Path(__file__).resolve().parents[2]
+
+if TYPE_CHECKING:
+    from ecs_core.components import Soul
 
 
 class SoulCounter:
@@ -15,13 +19,7 @@ class SoulCounter:
     FRAME_COUNT = 31
 
     def __init__(self, scale: float = 1.0) -> None:
-        sheet_path = (
-            Path(__file__).resolve().parents[4]
-            / "assets"
-            / "ui"
-            / "counters"
-            / "soul_counter.png"
-        )
+        sheet_path = ASSET_ROOT / "assets" / "ui" / "counters" / "soul_counter.png"
         sheet = pygame.image.load(str(sheet_path)).convert_alpha()
         width, height = sheet.get_size()
         frame_height = max(1, height // self.FRAME_COUNT)
@@ -50,10 +48,12 @@ class SoulCounter:
         offset: tuple[int, int],
     ) -> Optional[pygame.Rect]:
         model = getattr(player, "model", None)
-        soul: Optional[Soul] = getattr(model, "soul", None) if model is not None else None
-        if soul is None or soul.max_soul <= 0:
+        soul = getattr(model, "soul", None) if model is not None else None
+        max_soul = self._get_value(soul, "max_soul")
+        cur_soul = self._get_value(soul, "current_soul")
+        if soul is None or max_soul <= 0:
             return None
-        ratio = max(0.0, min(1.0, soul.current_soul / float(soul.max_soul)))
+        ratio = max(0.0, min(1.0, cur_soul / float(max_soul)))
         frame_index = int(round((1.0 - ratio) * (self.FRAME_COUNT - 1)))
         frame_index = max(0, min(self.FRAME_COUNT - 1, frame_index))
         frame = self._frames[frame_index]
@@ -64,6 +64,12 @@ class SoulCounter:
         rect = pygame.Rect(left, top, self._frame_width, self._frame_height)
         surface.blit(frame, rect.topleft)
         return rect
+
+    @staticmethod
+    def _get_value(obj: Any, attr: str, default: float = 0.0) -> float:
+        if obj is None or not hasattr(obj, attr):
+            return default
+        return float(getattr(obj, attr))
 
 
 __all__ = ["SoulCounter"]

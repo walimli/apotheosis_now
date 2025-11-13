@@ -6,13 +6,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from constants import LAYER_ENEMY, LAYER_PICKUP, LAYER_PLAYER, LAYER_WALL
-from ecs_core.components import (
-    Controller,
-    Health,
-    Position,
-    Speed,
-    Velocity,
-)
+from ecs_core.components import Controller, Health, Position, Speed, Soul, Velocity
 from ecs_core.components.animation_components import Animation, AnimationState
 from ecs_core.components.collider import Collider
 from ecs_core.components.entity_classes import Player
@@ -30,6 +24,7 @@ class PlayerConfig:
     animation_size: int = 32
     max_health: int = 10
     controller_type: str = "player_input"
+    max_soul: int = 100
 
 
 def spawn_player(
@@ -59,6 +54,8 @@ def spawn_player(
             defense=0,
         ),
     )
+    max_soul = int(cfg.max_soul)
+    world.add(entity, Soul(max_soul=max_soul, current_soul=max_soul))
     world.add(entity, Controller(type=cfg.controller_type))
     world.add(
         entity,

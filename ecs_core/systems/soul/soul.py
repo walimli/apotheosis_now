@@ -1,125 +1,28 @@
 from __future__ import annotations
 
-from typing import Callable, Optional
-from systems.time_manager_package.time_events import TimeEvent, TimePhase
+from typing import Optional, TYPE_CHECKING
+
+from ecs_core.components.components import Position, Soul
+from ecs_core.entities.entities import Entity
+from ecs_core.systems_base import System
+from services.time.time_events import TimeEvent, TimeEventType, TimePhase
+
+from .safe_zone import SafeZoneComponent, safe_zone_contains_position
+
+if TYPE_CHECKING:
+    from services.time.time_manager import TimeManager
+    from ecs_core.worlds.world import World
 
 
 class SoulCosts:
     """Centralized, easily tunable soul economy knobs."""
 
-    # Base activity drains; tweak to rebalance.
     HEARTBEAT: int = 1
     LANDSCAPE_HARVEST: int = 1
     LANDSCAPE_PLACE: int = 1
     FARMING_HARVEST: int = 1
     COMBAT_ATTACK: int = 1
-
-    # Default crafting drain per craft when recipes omit an override.
     CRAFTING_DEFAULT: int = 1
-
-
-class Soul:
-    """Player soul (fatigue) component."""
-
-    def __init__(self, max_soul: int, *, on_changed: Optional[Callable[[], None]] = None) -> None:
-        max_value = int(max(0, max_soul))
-        self.max_soul: int = max_value
-        self.current_soul: int = max_value
-        self._on_changed: Optional[Callable[[], None]] = on_changed
-        self._depleted_emitted = False
-
-    def set_on_changed(self, callback: Optional[Callable[[], None]]) -> None:
-        self._on_changed = callback
-
-    def set_max(self, max_soul: int) -> None:
-        self.max_soul = int(max(0, max_soul))
-        if self.current_soul > self.max_soul:
-            self.current_soul = self.max_soul
-        if self.max_soul == 0:
-            self.current_soul = 0
-        self._maybe_reset_depleted_flag()
-        self._emit_changed()
-
-    def restore_full(self) -> None:
-        if self.current_soul == self.max_soul:
-            return
-        self.current_soul = self.max_soul
-        self._maybe_reset_depleted_flag()
-        self._emit_changed()
-
-    def restore(self, amount: int) -> int:
-        if amount <= 0:
-            return 0
-        before = self.current_soul
-        self.current_soul = min(self.max_soul, self.current_soul + int(amount))
-        gained = self.current_soul - before
-        if gained > 0:
-            self._maybe_reset_depleted_flag()
-            self._emit_changed()
-        return gained
-
-    def can_spend(self, amount: int) -> bool:
-        if amount <= 0:
-            return True
-        return self.current_soul >= int(amount) and self.max_soul > 0
-
-    def consume(self, amount: int) -> bool:
-        spend = int(amount)
-        if spend <= 0:
-            return True
-        if not self.can_spend(spend):
-            self._emit_depleted()
-            return False
-        self.current_soul -= spend
-        if self.current_soul < 0:
-            self.current_soul = 0
-        if self.current_soul == 0:
-            self._emit_depleted()
-        else:
-            self._maybe_reset_depleted_flag(clear_only=True)
-        self._emit_changed()
-        return True
-
-    def is_depleted(self) -> bool:
-        return self.current_soul <= 0
-
-    def to_dict(self) -> dict:
-        return {
-            "cur": int(self.current_soul),
-            "max": int(self.max_soul),
-        }
-
-    def load_from_dict(self, data: dict) -> None:
-        if not isinstance(data, dict):
-            raise TypeError("Soul.load_from_dict expects dict")
-        cur = int(data.get("cur", 0))
-        max_soul = int(data.get("max", 0))
-        self.max_soul = max(0, max_soul)
-        self.current_soul = max(0, min(cur, self.max_soul))
-        self._maybe_reset_depleted_flag()
-        self._emit_changed()
-
-    def _emit_changed(self) -> None:
-        if self._on_changed is not None:
-            try:
-                self._on_changed()
-            except Exception:
-                pass
-
-    def _emit_depleted(self) -> None:
-        if not self._depleted_emitted:
-            print("[Soul] Player is exhausted: no soul remaining.")
-            self._depleted_emitted = True
-
-    def _maybe_reset_depleted_flag(self, *, clear_only: bool = False) -> None:
-        if self.current_soul > 0:
-            self._depleted_emitted = False
-        elif not clear_only and self.current_soul == 0:
-            self._depleted_emitted = True
-
-    def announce_blocked(self) -> None:
-        """Surface the depleted message without modifying state."""
-        self._emit_depleted()
 
 
 def should_drain_on_heartbeat(event: TimeEvent, *, in_safe_zone: bool = False) -> bool:
@@ -140,4 +43,128 @@ def should_drain_on_heartbeat(event: TimeEvent, *, in_safe_zone: bool = False) -
     return coerced is TimePhase.DAY
 
 
-__all__ = ["Soul", "SoulCosts", "should_drain_on_heartbeat"]
+class SoulSystem(System):
+    """Event-driven soul drain/restore controller."""
+
+    def __init__(
+        self,
+        world: "World",
+        time_manager: Optional["TimeManager"],
+        *,
+        heartbeat_cost: int = SoulCosts.HEARTBEAT,
+        tile_size: int = 64,
+    ) -> None:
+        super().__init__(world)
+        self._time_manager = time_manager
+        self._heartbeat_cost = max(0, int(heartbeat_cost))
+        normalized_tile_size = tile_size if tile_size and tile_size > 0 else 1
+        self._tile_size = max(1, int(normalized_tile_size))
+        self._subscribed = False
+        self._subscribe_to_time_events()
+
+    def _subscribe_to_time_events(self) -> None:
+        if self._time_manager is None or self._subscribed:
+            return
+        self._time_manager.subscribe_to_event(TimeEventType.HEARTBEAT, self._handle_heartbeat)
+        self._subscribed = True
+
+    def shutdown(self) -> None:
+        """Unsubscribe from time events when the system is torn down."""
+        if self._time_manager is None or not self._subscribed:
+            return
+        self._time_manager.unsubscribe_from_event(TimeEventType.HEARTBEAT, self._handle_heartbeat)
+        self._subscribed = False
+
+    def update(self, dt: float) -> None:
+        """The soul system reacts to events; no per-frame work required yet."""
+        return
+
+    def take_soul_damage(self, entity: Entity, amount: int) -> bool:
+        soul = self.world.get(entity, Soul)
+        if soul is None:
+            return False
+        return self._consume_soul(soul, amount)
+
+    def restore_soul(self, entity: Entity, amount: int) -> int:
+        soul = self.world.get(entity, Soul)
+        if soul is None:
+            return 0
+        return self._restore_soul(soul, amount)
+
+    def restore_full(self, entity: Entity) -> None:
+        soul = self.world.get(entity, Soul)
+        if soul is None:
+            return
+        self._normalize_component(soul)
+        soul.current_soul = soul.max_soul
+        soul.depleted_announced = False
+
+    def _handle_heartbeat(self, event: TimeEvent) -> None:
+        if self._heartbeat_cost <= 0:
+            return
+        souls = self.world.get_component(Soul)
+        for entity, soul in souls:
+            if soul.max_soul <= 0:
+                continue
+            position = self.world.get(entity, Position)
+            in_safe_zone = False
+            if position is not None:
+                in_safe_zone = self._is_position_in_safe_zone(float(position.x), float(position.y))
+            if not should_drain_on_heartbeat(event, in_safe_zone=in_safe_zone):
+                continue
+            self._consume_soul(soul, self._heartbeat_cost)
+
+    def _is_position_in_safe_zone(self, x: float, y: float) -> bool:
+        target = (x, y)
+        for _, zone_component, zone_position in self.world.view(SafeZoneComponent, Position):
+            zone_origin = (float(zone_position.x), float(zone_position.y))
+            if safe_zone_contains_position(
+                zone_component,
+                zone_origin,
+                target,
+                tile_size=self._tile_size,
+            ):
+                return True
+        return False
+
+    def _normalize_component(self, soul: Soul) -> None:
+        soul.max_soul = int(max(0, soul.max_soul))
+        if soul.current_soul is None:
+            soul.current_soul = soul.max_soul
+        soul.current_soul = int(max(0, min(int(soul.current_soul), soul.max_soul)))
+
+    def _consume_soul(self, soul: Soul, amount: int) -> bool:
+        spend = int(amount)
+        if spend <= 0:
+            return True
+        self._normalize_component(soul)
+        if soul.max_soul <= 0 or soul.current_soul < spend:
+            self._announce_depleted(soul)
+            return False
+        soul.current_soul -= spend
+        if soul.current_soul <= 0:
+            soul.current_soul = 0
+            self._announce_depleted(soul)
+        else:
+            soul.depleted_announced = False
+        return True
+
+    def _restore_soul(self, soul: Soul, amount: int) -> int:
+        restore_amount = int(amount)
+        if restore_amount <= 0:
+            return 0
+        self._normalize_component(soul)
+        before = soul.current_soul
+        soul.current_soul = min(soul.max_soul, soul.current_soul + restore_amount)
+        if soul.current_soul > 0:
+            soul.depleted_announced = False
+        return soul.current_soul - before
+
+    def _announce_depleted(self, soul: Soul) -> None:
+        if soul.depleted_announced:
+            return
+        print("[Soul] Player is exhausted: no soul remaining.")
+        soul.depleted_announced = True
+
+
+__all__ = ["SoulSystem", "SoulCosts", "should_drain_on_heartbeat"]

@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Tuple
 
 import pygame
-from ..inventory import Inventory
-from ..items import get_icon
-from ..interactions import handle_left_click, handle_right_click
+from services.inventory import Inventory, get_icon, handle_left_click, handle_right_click
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 class HotbarUI:
@@ -57,8 +57,7 @@ class HotbarUI:
         self._font = pygame.font.Font(None, max(12, int(slot_size * 0.3)))
 
     def _load_bar_image(self, scale: float) -> pygame.Surface:
-        root = Path(__file__).resolve().parents[5]
-        bar_path = root / "assets" / "ui" / "inventory_bar" / "inventory_bar.png"
+        bar_path = PROJECT_ROOT / "assets" / "ui" / "inventory_bar" / "inventory_bar.png"
         base = pygame.image.load(str(bar_path)).convert_alpha()
         if scale == 1.0:
             return base
@@ -125,8 +124,7 @@ class HotbarUI:
         surface.blit(icon, icon_rect)
 
     def _load_lock_icons(self, target_size: int) -> dict[str, pygame.Surface]:
-        root = Path(__file__).resolve().parents[5]
-        assets_dir = root / "assets" / "ui" / "icons" / "combat"
+        assets_dir = PROJECT_ROOT / "assets" / "ui" / "icons" / "combat"
 
         def _load(name: str) -> pygame.Surface:
             path = assets_dir / name

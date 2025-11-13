@@ -5,7 +5,9 @@ from typing import Any, Optional
 
 import pygame
 
-from systems.player.components.inventory_package.ui.hotbar import HotbarUI
+from .inventory_bar import HotbarUI
+
+ASSET_ROOT = Path(__file__).resolve().parents[2]
 
 
 class HealthCounter:
@@ -14,13 +16,7 @@ class HealthCounter:
     FRAME_COUNT = 31
 
     def __init__(self, scale: float = 1.0) -> None:
-        sheet_path = (
-            Path(__file__).resolve().parents[4]
-            / "assets"
-            / "ui"
-            / "counters"
-            / "health_counter.png"
-        )
+        sheet_path = ASSET_ROOT / "assets" / "ui" / "counters" / "health_counter.png"
         sheet = pygame.image.load(str(sheet_path)).convert_alpha()
         width, height = sheet.get_size()
         frame_height = max(1, height // self.FRAME_COUNT)
@@ -50,10 +46,12 @@ class HealthCounter:
     ) -> Optional[pygame.Rect]:
         model = getattr(player, "model", None)
         health = getattr(model, "health", None) if model is not None else None
-        if health is None or health.max_hp <= 0:
+        max_hp = self._get_value(health, "max_hp", fallback="max_health")
+        cur_hp = self._get_value(health, "current_hp", fallback="current_health")
+        if health is None or max_hp <= 0:
             return None
 
-        ratio = max(0.0, min(1.0, health.current_hp / float(health.max_hp)))
+        ratio = max(0.0, min(1.0, cur_hp / float(max_hp)))
         frame_index = int(round((1.0 - ratio) * (self.FRAME_COUNT - 1)))
         frame_index = max(0, min(self.FRAME_COUNT - 1, frame_index))
         frame = self._frames[frame_index]
@@ -64,6 +62,16 @@ class HealthCounter:
         rect = pygame.Rect(left, top, self._frame_width, self._frame_height)
         surface.blit(frame, rect.topleft)
         return rect
+
+    @staticmethod
+    def _get_value(obj: Any, primary: str, *, fallback: Optional[str] = None, default: float = 0.0) -> float:
+        if obj is None:
+            return default
+        if hasattr(obj, primary):
+            return float(getattr(obj, primary))
+        if fallback and hasattr(obj, fallback):
+            return float(getattr(obj, fallback))
+        return default
 
 
 __all__ = ["HealthCounter"]

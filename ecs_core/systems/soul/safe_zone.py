@@ -1,46 +1,28 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Tuple
+import math
+from typing import Dict, Optional, Tuple
 
 TileCoord = Tuple[int, int]
+Vec2 = Tuple[float, float]
 
 
 @dataclass(frozen=True)
-class SafeZone:
-    """Descriptor for a tile-based safe zone."""
+class SafeZoneComponent:
+    """Component that marks an entity as emitting a safe zone."""
 
-    tile: TileCoord
-    radius: float
+    radius_tiles: float
+    enabled: bool = True
+    anchor_offset: Vec2 = (0.0, 0.0)
+    tile_override: Optional[TileCoord] = None
 
-    def contains(self, tile: TileCoord) -> bool:
-        dx = abs(self.tile[0] - tile[0])
-        dy = abs(self.tile[1] - tile[1])
-        return max(dx, dy) <= self.radius
-
-
-class SafeZoneRegistry:
-    """Track active safe zones that pause soul drain."""
-
-    def __init__(self) -> None:
-        self._zones: Dict[TileCoord, SafeZone] = {}
-
-    def add_zone(self, tile: TileCoord, radius: float) -> SafeZone:
-        zone = SafeZone(tile=tile, radius=float(radius))
-        self._zones[tile] = zone
-        return zone
-
-    def remove_zone(self, tile: TileCoord) -> None:
-        self._zones.pop(tile, None)
-
-    def clear(self) -> None:
-        self._zones.clear()
-
-    def contains(self, tile: TileCoord) -> bool:
-        return any(zone.contains(tile) for zone in self._zones.values())
-
-    def to_iterable(self) -> Iterable[SafeZone]:
-        return tuple(self._zones.values())
+    def contains_tile(self, center: TileCoord, tile: TileCoord) -> bool:
+        if not self.enabled or self.radius_tiles <= 0.0:
+            return False
+        dx = abs(center[0] - tile[0])
+        dy = abs(center[1] - tile[1])
+        return max(dx, dy) <= self.radius_tiles
 
 
 SAFE_ZONE_DEFAULTS: Dict[str, float] = {
@@ -62,4 +44,35 @@ def resolve_safe_zone_radius(
     return float(SAFE_ZONE_DEFAULTS.get(dataset_name, 0.0))
 
 
-__all__ = ["SafeZone", "SafeZoneRegistry", "SAFE_ZONE_DEFAULTS", "resolve_safe_zone_radius"]
+def tile_coord_from_world(position: Vec2, tile_size: float) -> TileCoord:
+    """Convert a world-space position to an integer tile coordinate."""
+    size = max(1.0, float(tile_size or 1.0))
+    x, y = position
+    return (int(math.floor(x / size)), int(math.floor(y / size)))
+
+
+def safe_zone_contains_position(
+    zone: SafeZoneComponent,
+    zone_position: Vec2,
+    target_position: Vec2,
+    *,
+    tile_size: float,
+) -> bool:
+    """Check if the target position lies within the component's safe zone."""
+    if not zone.enabled or zone.radius_tiles <= 0.0:
+        return False
+    center_tile = zone.tile_override or tile_coord_from_world(
+        (zone_position[0] + zone.anchor_offset[0], zone_position[1] + zone.anchor_offset[1]),
+        tile_size,
+    )
+    target_tile = tile_coord_from_world(target_position, tile_size)
+    return zone.contains_tile(center_tile, target_tile)
+
+
+__all__ = [
+    "SafeZoneComponent",
+    "SAFE_ZONE_DEFAULTS",
+    "resolve_safe_zone_radius",
+    "tile_coord_from_world",
+    "safe_zone_contains_position",
+]

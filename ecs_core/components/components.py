@@ -49,6 +49,19 @@ class Health:
 
 
 @dataclass
+class Soul:
+    max_soul: int
+    current_soul: Optional[int] = None
+    depleted_announced: bool = False
+
+    def __post_init__(self) -> None:
+        self.max_soul = int(max(0, self.max_soul))
+        if self.current_soul is None:
+            self.current_soul = self.max_soul
+        self.current_soul = int(max(0, min(int(self.current_soul), self.max_soul)))
+
+
+@dataclass
 class Evolve:
     time_event: str  # e.g., TimeEventType.DAWN, TimeEventType.NIGHTFALL
     stage: Optional[int] = None  # Entity ID to become, or None

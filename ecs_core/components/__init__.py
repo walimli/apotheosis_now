@@ -11,6 +11,7 @@ from .components import (
 # Game logic components
 from .components import (
     Health,
+    Soul,
     Drops,
     Evolve,
     Controller,
@@ -54,6 +55,8 @@ from .animation_components import (
 # Collision component
 from .collider import Collider
 
+from ecs_core.systems.soul.safe_zone import SafeZoneComponent
+
 # Define what gets exported when using "from ecs_core.components import *"
 __all__ = [
     # Core physics and movement
@@ -62,6 +65,7 @@ __all__ = [
     "Position",
     # Game logic
     "Health",
+    "Soul",
     "Drops",
     "Evolve",
     "Controller",
@@ -85,4 +89,6 @@ __all__ = [
     "AnimationState",
     # Collision
     "Collider",
+    # Soul/Safe Zones
+    "SafeZoneComponent",
 ]

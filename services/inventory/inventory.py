@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List, Optional, Tuple
 
-from systems.audio_package import publish_audio_event
+from services.audio_package import publish_audio_event
 from .items import get_item
 from .cursor import InventoryCursor
 
@@ -36,6 +36,10 @@ class Inventory:
         self.selected_index: int = 0
         self.on_change: Optional[Callable[[], None]] = None
         self.cursor: InventoryCursor = InventoryCursor()
+        self._selection_listeners: List[Callable[[int, Optional[str], int], None]] = []
+        self._last_selection_state: Tuple[int, Optional[str], int] = (
+            self._selection_snapshot()
+        )
 
     # --- Selection ---
     def set_selected_index(self, index: int) -> None:
@@ -188,6 +192,21 @@ class Inventory:
         """Get total count of a specific item in inventory."""
         return sum(slot.qty for slot in self.slots if slot.item_id == item_id)
 
+    # --- Selection listeners ---
+    def add_selection_listener(
+        self, callback: Callable[[int, Optional[str], int], None]
+    ) -> None:
+        """Register a callback invoked when the equipped slot or its contents change."""
+        if callback not in self._selection_listeners:
+            self._selection_listeners.append(callback)
+
+    def remove_selection_listener(
+        self, callback: Callable[[int, Optional[str], int], None]
+    ) -> None:
+        """Remove a previously registered selection listener."""
+        if callback in self._selection_listeners:
+            self._selection_listeners.remove(callback)
+
     # --- Events ---
     def _emit_change(self) -> None:
         """Emit change notification."""
@@ -196,6 +215,28 @@ class Inventory:
                 self.on_change()
             except Exception:
                 pass  # Don't let callback errors break inventory
+        self._maybe_emit_selection_change()
+
+    def _maybe_emit_selection_change(self) -> None:
+        snapshot = self._selection_snapshot()
+        if snapshot == self._last_selection_state:
+            return
+        self._last_selection_state = snapshot
+        self._emit_selection_change(snapshot)
+
+    def _selection_snapshot(self) -> Tuple[int, Optional[str], int]:
+        slot = self.get_selected_slot()
+        return (self.selected_index, slot.item_id, slot.qty)
+
+    def _emit_selection_change(
+        self, snapshot: Tuple[int, Optional[str], int]
+    ) -> None:
+        index, item_id, qty = snapshot
+        for callback in list(self._selection_listeners):
+            try:
+                callback(index, item_id, qty)
+            except Exception:
+                continue
 
     # --- Persistence ---
     def to_dict(self) -> dict:
