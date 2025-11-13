@@ -1,6 +1,7 @@
 import os
 import pygame
 from .defaults import BASE_WIDTH, BASE_HEIGHT, BORDERLESS_DEFAULT
+from .camera import FollowCamera
 
 
 class DisplayService:
@@ -42,6 +43,7 @@ class DisplayService:
         self.base_height = max(1, self.screen_height // self._pixel_scale)
         self._create_screen()
         self._create_base_surface()
+        self._camera = FollowCamera(self)
 
     def _create_screen(self):
         if self._borderless:
@@ -75,6 +77,28 @@ class DisplayService:
     def get_base_surface(self):
         """Get the base surface for states to render to."""
         return self.base_surface
+
+    def update_camera(self, target_pos, dt: float, target_size=None) -> None:
+        """Update the follow camera to track the supplied target."""
+        if self._camera is None:
+            self._camera = FollowCamera(self)
+        self._camera.update(target_pos, dt, target_size)
+
+    def get_camera_rect(self) -> pygame.Rect:
+        """Return the current camera rect in world coordinates."""
+        if self._camera is None:
+            self._camera = FollowCamera(self)
+        return self._camera.rect
+
+    def get_camera_scale(self) -> float:
+        if self._camera is None:
+            self._camera = FollowCamera(self)
+        return float(getattr(self._camera, "scale", 1.0))
+
+    def world_to_screen(self, pos):
+        if self._camera is None:
+            self._camera = FollowCamera(self)
+        return self._camera.world_to_screen(pos)
 
     def _ensure_screen(self):
         if self.screen is None or self.screen.get_size() != (

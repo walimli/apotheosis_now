@@ -29,5 +29,7 @@ class EvolveSystem:
         new_entity = self.world.create_entity_from_template(new_eid_template)
 
         # Apply preserved position
-        new_pos = self.world.components[Position][new_entity]
+        new_pos = self.world.get(new_entity, Position)
+        if not new_pos:
+            return
         new_pos.x, new_pos.y = pos_data

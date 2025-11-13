@@ -156,6 +156,10 @@ class PlayInputBus:
         if callback not in callbacks:
             callbacks.append(callback)
 
+    def get_movement_input(self) -> Tuple[float, float]:
+        """Expose the MOVE axis without requiring systems to read state internals."""
+        return self.state.get_axis(PlayAction.MOVE)
+
     def _handle_key(self, key: int, down: bool) -> None:
         for binding in self._trigger_lookup.get(("key", key), []):
             if binding.action == PlayAction.HOTBAR_SELECT:

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass
 class Animation:
-    sheet_path: str
+    sheet_path: Optional[str]
     sheet_w: int
     sheet_h: int
     frame_w: int

@@ -1,7 +1,7 @@
 import random
 import pygame
 from typing import Tuple
-from components.components import Drops, Health, Position
+from ecs_core.components.components import Drops, Health, Position
 
 
 class DropsSystem:
@@ -11,7 +11,11 @@ class DropsSystem:
 
     def update(self, dt: float):
         for eid, (health, drops) in list(self.world.get_components(Health, Drops)):
-            if health.current_health <= 0 and eid in self.world.components:  # Just died
+            if (
+                health.current_health <= 0
+                and self.world
+                and self.world.has_entity(eid)
+            ):
                 self._handle_death(eid, drops)
                 self.world.destroy_entity(eid)  # Cleanup
 
@@ -33,7 +37,9 @@ class DropsSystem:
 
         # XP event - use pygame custom event system
         if drops.xp > 0:
-            xp_event = pygame.event.Event(pygame.USEREVENT + 1, {"type": "ADD_XP", "amount": drops.xp})
+            xp_event = pygame.event.Event(
+                pygame.USEREVENT + 1, {"type": "ADD_XP", "amount": drops.xp}
+            )
             pygame.event.post(xp_event)
 
     def _spawn_coin(self, coin_name: str, pos: Tuple[int, int]):

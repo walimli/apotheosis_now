@@ -9,7 +9,10 @@ from typing import Any, Optional, Tuple
 import numpy as np
 import pygame
 
-from systems.ecs_core import Camera2DComponent, VoidVisualComponent
+from ecs_core.components.rendering_components import (
+    Camera2DComponent,
+    VoidVisualComponent,
+)
 from services.opengl import (
     GLContext,
     ShaderResourceManager,

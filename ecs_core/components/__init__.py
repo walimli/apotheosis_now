@@ -4,11 +4,11 @@
 # Core physics and movement components
 from .components import (
     Speed,
-    Velocity, 
+    Velocity,
     Position,
 )
 
-# Game logic components  
+# Game logic components
 from .components import (
     Health,
     Drops,
@@ -26,7 +26,7 @@ from .components import (
 # Entity marker components
 from .entity_classes import (
     Player,
-    Mob, 
+    Mob,
     NPC,
     Plant,
     Object,
@@ -40,6 +40,11 @@ from .rendering_components import (
     RenderableEntityComponent,
 )
 
+from .components import (
+    Renderable,
+)
+
+
 # Animation components
 from .animation_components import (
     Animation,
@@ -52,17 +57,32 @@ from .collider import Collider
 # Define what gets exported when using "from ecs_core.components import *"
 __all__ = [
     # Core physics and movement
-    "Speed", "Velocity", "Position",
+    "Speed",
+    "Velocity",
+    "Position",
     # Game logic
-    "Health", "Drops", "Evolve", "Controller", "ControllerType", 
+    "Health",
+    "Drops",
+    "Evolve",
+    "Controller",
+    "ControllerType",
     # Items and interaction
-    "HeldItem", "Harvestable",
+    "HeldItem",
+    "Harvestable",
     # Entity markers
-    "Player", "Mob", "NPC", "Plant", "Object",
+    "Player",
+    "Mob",
+    "NPC",
+    "Plant",
+    "Object",
     # Rendering
-    "Camera2DComponent", "VoidVisualComponent", "TerrainChunkComponent", "RenderableEntityComponent",
+    "Camera2DComponent",
+    "VoidVisualComponent",
+    "TerrainChunkComponent",
+    "RenderableEntityComponent",
     # Animation
-    "Animation", "AnimationState",
+    "Animation",
+    "AnimationState",
     # Collision
     "Collider",
 ]

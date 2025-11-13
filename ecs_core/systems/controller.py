@@ -1,6 +1,6 @@
-# systems/controller.py
-from typing import Dict, Callable
-from components.components import Controller
+from typing import Dict, Callable, Tuple
+import math
+from ecs_core.components.components import Controller, Speed, Velocity
 
 
 class ControllerSystem:
@@ -8,7 +8,9 @@ class ControllerSystem:
         self.world = None
         self.input_service = None
         self.ai_service = None
-        self.entity_to_handler: Dict[int, Callable[[int, float], None]] = {}  # eid → callable(eid, dt)
+        self.entity_to_handler: Dict[int, Callable[[int, float], None]] = (
+            {}
+        )  # eid → callable(eid, dt)
 
     def register_entity(self, eid: int, controller: Controller):
         """Called once when entity is created with Controller component."""
@@ -29,10 +31,42 @@ class ControllerSystem:
 
     def update(self, dt: float):
         # Only call pre-registered handlers — O(1) per entity, no type checks
+        if not self.world:
+            return
         for eid, handler in self.entity_to_handler.items():
-            if eid in self.world.components:  # Still alive
+            if self.world.has_entity(eid):  # Still alive
                 handler(eid, dt)
 
     def _player_input_handler(self, eid: int, dt: float):
-        # Same as before: read input, move, animate
-        pass
+        """Handle player input to update entity velocity."""
+        if not self.input_service:
+            return
+
+        # Get current movement input from input service
+        # Following the pattern: input vector in range [-1, 1] for each axis
+        movement_input = self.input_service.get_movement_input()
+        dx, dy = movement_input
+
+        # Get entity's Speed component for movement speed
+        speed = self.world.get_component(eid, Speed)
+        if not speed:
+            return
+
+        # Normalize movement so diagonals aren't faster
+        magnitude = math.hypot(dx, dy)
+        if magnitude > 1.0:
+            dx /= magnitude
+            dy /= magnitude
+
+        # Calculate final velocity based on speed and normalized input
+        velocity_x = dx * speed.pixels_per_second
+        velocity_y = dy * speed.pixels_per_second
+
+        # Update entity's Velocity component
+        velocity = self.world.get_component(eid, Velocity)
+        if velocity:
+            velocity.vx = velocity_x
+            velocity.vy = velocity_y
+        else:
+            # Create new Velocity component if it doesn't exist
+            self.world.add(eid, Velocity(vx=velocity_x, vy=velocity_y))

@@ -7,13 +7,11 @@ from typing import Dict, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pygame
 
-from services.asset_loader.tiles import TileSheet
-from systems.ecs_core import (
-    Camera2DComponent,
-    EntityManager,
-    VoidVisualComponent,
-    World,
-)
+from services.asset_loader import TileSheet
+from services.world_builder import WorldBuilder
+from ecs_core.components import Camera2DComponent, VoidVisualComponent
+from ecs_core.entities.entities import EntityManager
+from ecs_core.worlds.world import World
 from services.void import VoidRenderSystem
 
 from .camera import compute_visible_chunks
@@ -34,6 +32,7 @@ class WorldRenderer:
         *,
         tile_size: int = 64,
         chunk_size: int = 32,
+        world_builder: Optional[WorldBuilder] = None,
         object_sprites: Optional[Dict[str, pygame.Surface]] = None,
         entity_sprites: Optional[Dict[str, pygame.Surface]] = None,
     ) -> None:
@@ -57,6 +56,9 @@ class WorldRenderer:
             tile_size=tile_size,
             chunk_size=chunk_size,
         )
+        self._world_builder = world_builder
+        self._chunk_tiles: Dict[ChunkKey, np.ndarray] = {}
+        self._chunk_objects: Dict[ChunkKey, Sequence[Dict]] = {}
 
         self.render_world = World()
         self._render_entity_manager = EntityManager()
@@ -84,13 +86,17 @@ class WorldRenderer:
         self.defer_placeables: bool = False
         self._placeable_packets: list["RenderPacket"] = []
 
+    def attach_world_builder(self, builder: WorldBuilder) -> None:
+        """Attach or replace the world builder used for chunk generation."""
+        self._world_builder = builder
+
     def render_visible_chunks(
         self,
-        chunks: Mapping[ChunkKey, np.ndarray],
-        objects: Mapping[ChunkKey, Sequence[Dict]],
         camera_x: int,
         camera_y: int,
         *,
+        chunks: Optional[Mapping[ChunkKey, np.ndarray]] = None,
+        objects: Optional[Mapping[ChunkKey, Sequence[Dict]]] = None,
         entities: Optional[Sequence[Dict]] = None,
         camera=None,
     ) -> None:
@@ -114,6 +120,8 @@ class WorldRenderer:
 
         screen_width = self.screen.get_width()
         screen_height = self.screen.get_height()
+        chunk_source = chunks if chunks is not None else self._chunk_tiles
+        object_source = objects if objects is not None else self._chunk_objects
         visible = compute_visible_chunks(
             camera_x,
             camera_y,
@@ -136,11 +144,17 @@ class WorldRenderer:
             self._placeable_packets = []
 
         for key in visible:
-            base_tiles = self.chunk_cache.resolve_base_tiles(key, chunks)
+            base_tiles = self.chunk_cache.resolve_base_tiles(key, chunk_source)
             if base_tiles is None:
-                continue
+                if chunks is None:
+                    self._ensure_chunk_data(key)
+                    base_tiles = self.chunk_cache.resolve_base_tiles(
+                        key, self._chunk_tiles
+                    )
+                if base_tiles is None:
+                    continue
             tile_surface = self.chunk_cache.ensure_chunk(key, base_tiles)
-            object_list = objects.get(key) or []
+            object_list = object_source.get(key) or []
 
             chunk_world_x = key[0] * chunk_pixels
             chunk_world_y = key[1] * chunk_pixels
@@ -219,6 +233,41 @@ class WorldRenderer:
         """Refresh cached data for a chunk after tile mutations."""
         key = (chunk_x, chunk_y)
         self.chunk_cache.update_chunk(key, tiles, modified_tiles)
+        self._chunk_tiles[key] = tiles
+
+    def ensure_chunks_for_camera(self, camera_rect: pygame.Rect) -> Tuple[ChunkKey, ...]:
+        """Generate and cache all chunks visible inside the provided camera rect."""
+        if camera_rect is None:
+            return tuple()
+        camera_x = camera_rect.left
+        camera_y = camera_rect.top
+        visible = compute_visible_chunks(
+            camera_x,
+            camera_y,
+            camera_rect.width,
+            camera_rect.height,
+            chunk_size=self.chunk_size,
+            tile_size=self.tile_size,
+        )
+        for key in visible:
+            self._ensure_chunk_data(key)
+        return visible
+
+    def _ensure_chunk_data(self, key: ChunkKey) -> None:
+        if key in self._chunk_tiles:
+            return
+        if self._world_builder is None:
+            return
+        try:
+            tiles, objects = self._world_builder.generate_chunk(key[0], key[1])
+            self._chunk_tiles[key] = tiles
+            self._chunk_objects[key] = objects or []
+        except Exception as exc:
+            print(f"Error generating chunk {key}: {exc}")
+            self._chunk_tiles[key] = np.zeros(
+                (self.chunk_size, self.chunk_size), dtype=np.int8
+            )
+            self._chunk_objects[key] = []
 
     def _sync_camera_component(self, camera_rect: pygame.Rect, scale: float) -> None:
         scroll = (float(camera_rect.left), float(camera_rect.top))

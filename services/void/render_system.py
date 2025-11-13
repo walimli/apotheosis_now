@@ -6,8 +6,11 @@ from dataclasses import replace
 from typing import Optional
 
 import pygame
-
-from systems.ecs_core import Camera2DComponent, System, VoidVisualComponent
+from ecs_core.systems_base import System
+from ecs_core.components.rendering_components import (
+    Camera2DComponent,
+    VoidVisualComponent,
+)
 
 from .void_render_pass import VoidRenderPass
 

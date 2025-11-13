@@ -1,7 +1,5 @@
 import pygame
 from constants import TILE_SIZE
-# Keep this import as is for now - it's importing from legacy systems
-# This will be handled when we integrate the ECS player system
 
 
 class FollowCamera:
@@ -24,7 +22,10 @@ class FollowCamera:
         # Lerp speed factor (1/s)
         self._lerp_rate = float(lerp_rate)
 
-    def update(self, player: Player, dt: float) -> None:
+    def update(self, target_pos, dt: float, target_size=None) -> None:
+        """Update camera origin to follow the supplied target center."""
+        if target_pos is None or dt is None:
+            return
         # Viewport size in world pixels
         s = float(self.scale) if self.scale > 0 else 1.0
         vw = self.display.base_width / s
@@ -34,9 +35,12 @@ class FollowCamera:
         cx = self._origin_x + vw * 0.5
         cy = self._origin_y + vh * 0.5
 
-        # Player center in world coords
-        px = float(player.model.x) + float(player.model.w) * 0.5
-        py = float(player.model.y) + float(player.model.h) * 0.5
+        # Target center in world coords
+        px = float(target_pos[0])
+        py = float(target_pos[1])
+        if target_size is not None:
+            px += float(target_size[0]) * 0.5
+            py += float(target_size[1]) * 0.5
 
         # Target center clamps player into deadzone bounds
         min_cx = px - self._dz_half_w
@@ -68,8 +72,10 @@ class FollowCamera:
     def _lerp_alpha(self, dt: float) -> float:
         try:
             rate = self._lerp_rate
-            if rate <= 0 or dt <= 0:
-                return 1.0 if rate <= 0 else 0.0
+            if rate <= 0:
+                return 1.0
+            if dt <= 0:
+                return 1.0
             a = rate * dt
             return 1.0 if a >= 1.0 else a
         except Exception:

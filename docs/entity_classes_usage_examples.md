@@ -2,14 +2,6 @@
 
 This document shows how to use the entity class marker components in your ECS system.
 
-## Basic Setup
-
-```python
-from systems.ecs_core.worlds.world import World
-from systems.ecs_core.entities.entities import EntityManager
-from components.entity_classes import Player, Mob, NPC, Plant, Object
-from systems.ecs_core.components.components import Position, Health, Velocity
-
 # Create game world
 world = World()
 entity_manager = EntityManager()
