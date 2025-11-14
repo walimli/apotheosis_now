@@ -13,3 +13,4 @@ class PlayInputContext:
     inventory_lock: Optional[Any] = None
     dialogue_manager: Optional[Any] = None
     display: Optional[Any] = None
+    landscaping_system: Optional[Any] = None

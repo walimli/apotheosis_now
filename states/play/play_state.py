@@ -11,6 +11,7 @@ import pygame
 from services.audio_package import AudioManager
 from services.display.display_system import DisplayService
 from services.inventory import Inventory
+from services.inventory.factory import create_player_inventory
 from services.inventory.lock_state import InventoryLockState
 from services.progression import Progression
 from services.time import TimeManager
@@ -23,9 +24,11 @@ from services.inputs import (
     PlayAction,
     HotbarInputAdapter,
     InventoryLockInputAdapter,
+    LandscapingInputAdapter,
 )
 from services.notifications import NotificationService
 from services.ui.ui_manager import UIManager
+from services.landscaping.landscape_updater import bootstrap_land_systems
 
 # Import ECS components and systems
 from ecs_core.worlds.world import World
@@ -106,8 +109,16 @@ class PlayState:
         # Initialize ECS world and systems
         self._initialize_ecs()
 
+        self.landscaping_runtime = None
+        self.landscaping_system = None
+        self.landscape_updater = None
+        self.landscaping_input_adapter: LandscapingInputAdapter | None = None
+
         # Initialize player entity
         self._initialize_player()
+
+        # Initialize landscaping (requires player bindings)
+        self._initialize_landscaping()
 
         # Initialize input handling
         self._initialize_input()
@@ -209,12 +220,20 @@ class PlayState:
             self._sync_camera_component_from_display()
         self._initialize_player_bindings()
 
+    def _initialize_landscaping(self) -> None:
+        """Bootstrap the landscaping systems tied to the play state."""
+        runtime = bootstrap_land_systems(self)
+        self.landscaping_runtime = runtime
+        self.landscaping_system = runtime.landscaping
+        self.landscape_updater = runtime.updater
+
     def _initialize_input(self):
         """Initialize input handling."""
         self.input_bus = PlayInputBus()
         self.input_context = PlayInputContext()
         self._refresh_input_context()
         self._attach_inventory_input_adapters()
+        self._attach_landscaping_input_adapter()
 
         # Wire input service to controller system
         self.controller_system.input_service = self.input_bus
@@ -239,6 +258,7 @@ class PlayState:
         )
         context.display = self.display
         context.camera = self.display
+        context.landscaping_system = getattr(self, "landscaping_system", None)
 
     def _attach_inventory_input_adapters(self) -> None:
         """Wire hotbar + lock-state input adapters into the play input bus."""
@@ -272,9 +292,20 @@ class PlayState:
         self.inventory_lock_input_adapter.attach()
         self._inventory_adapters_attached = True
 
+    def _attach_landscaping_input_adapter(self) -> None:
+        system = getattr(self, "landscaping_system", None)
+        if system is None:
+            return
+        self.landscaping_input_adapter = LandscapingInputAdapter(
+            bus=self.input_bus,
+            context=self.input_context,
+            system=system,
+        )
+        self.landscaping_input_adapter.attach()
+
     def _initialize_player_bindings(self) -> None:
         """Create player bindings for UI + progression."""
-        inventory = Inventory()
+        inventory = create_player_inventory()
         lock_state = InventoryLockState()
         health_component = self.ecs_world.get(self.player_entity, Health)
         soul_component = self.ecs_world.get(self.player_entity, Soul)
@@ -340,6 +371,8 @@ class PlayState:
         # TODO: Add other ECS systems (speed, collision, etc.)
         self.movement_system.update(dt)
         self.soul_system.update(dt)
+        if self.landscaping_system is not None:
+            self.landscaping_system.update(dt)
         self._update_camera_tracking(dt)
         self._prepare_world_chunks()
 
@@ -363,6 +396,8 @@ class PlayState:
             camera=camera_component,
         )
         self.animation_system.render(surface, camera_x, camera_y)
+        if self.landscaping_system is not None:
+            self.landscaping_system.render(surface)
 
     def render_hud(self, screen: pygame.Surface):
         """Render HUD elements after the main world."""

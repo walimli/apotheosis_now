@@ -59,28 +59,44 @@ class PlayerInputAdapter(BaseInputAdapter):
 
 @dataclass
 class LandscapingInputAdapter(BaseInputAdapter):
-    system: Any
+    system: Any | None = None
 
     def attach(self) -> None:
         self.bus.subscribe(PlayAction.USE_INVENTORY, self._on_use_inventory)
         self.bus.subscribe(PlayAction.CURSOR_MOVE, self._on_cursor_move)
+
+    def _system(self) -> Any | None:
+        if self.system is not None:
+            return self.system
+        if self.context is None:
+            return None
+        return getattr(self.context, "landscaping_system", None)
 
     def _on_use_inventory(self, action: PlayAction, state: PlayInputState) -> None:
         if action != PlayAction.USE_INVENTORY:
             return
         if self.crafting_active():
             return
+        system = self._system()
+        if system is None:
+            return
+        readiness = getattr(system, "wants_primary_action", None)
+        if callable(readiness) and not readiness():
+            return
         button = state.buttons.get(PlayAction.USE_INVENTORY)
         if button and button.pressed:
-            self.system.handle_use_inventory()
+            system.handle_use_inventory()
 
     def _on_cursor_move(self, action: PlayAction, state: PlayInputState) -> None:
         if action != PlayAction.CURSOR_MOVE:
             return
         if self.crafting_active():
             return
-        camera = self.context.camera
-        self.system.handle_cursor_move(state.cursor_pos, camera)
+        system = self._system()
+        if system is None:
+            return
+        camera = self.context.camera if self.context is not None else None
+        system.handle_cursor_move(state.cursor_pos, camera)
 
 
 @dataclass

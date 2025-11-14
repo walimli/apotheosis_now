@@ -22,8 +22,8 @@ _ICONS: Dict[str, pygame.Surface] = {}
 
 
 def _project_root() -> Path:
-    """Return the Bedlam project root directory."""
-    return Path(__file__).resolve().parents[4]
+    """Return the project root directory."""
+    return Path(__file__).resolve().parents[2]
 
 
 def _inventory_data_paths() -> list[Path]:
