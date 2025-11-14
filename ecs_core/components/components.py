@@ -63,8 +63,8 @@ class Soul:
 
 @dataclass
 class Evolve:
-    time_event: str  # e.g., TimeEventType.DAWN, TimeEventType.NIGHTFALL
-    stage: Optional[int] = None  # Entity ID to become, or None
+    time_event: str  # e.g., TimeEventType.DAWN_STARTED
+    next_entity_id: Optional[str] = None  # Registry ID to become, or None
 
 
 ControllerType = Literal["player_input", "mob_aggressive", "mob_passive", "npc"]

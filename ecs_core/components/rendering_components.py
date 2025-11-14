@@ -41,12 +41,15 @@ class TerrainChunkComponent:
 
 @dataclass(frozen=True)
 class RenderableEntityComponent:
-    """Placeholder describing on-screen renderable entities."""
+    """Describes a sprite-based entity that should be drawn by RenderSystem."""
 
-    entity_id: str
-    position: Tuple[float, float]
-    sprite_key: Optional[str] = None
+    sprite_path: str
+    entity_id: Optional[str] = None
     layer: int = 0
+    size: Optional[Tuple[int, int]] = None
+    scale: float = 1.0
+    anchor: Tuple[float, float] = (0.5, 1.0)
+    offset: Tuple[int, int] = (0, 0)
 
 
 __all__ = [
