@@ -2,7 +2,7 @@ from typing import Optional
 
 from ecs_core.components.components import Evolve, Position
 from ecs_core.entities.entities import EntityManager
-from ecs_core.entities.evolve_registry import (
+from services.monster_factory.evolve_registry import (
     EvolvableEntityRegistry,
     evolvable_registry,
 )

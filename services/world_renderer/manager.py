@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Mapping, Optional, Sequence, Tuple
+from typing import Callable, Dict, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pygame
@@ -20,6 +20,7 @@ from .entity_renderer import render_entities
 from .object_renderer import render_objects_on_surface
 
 ChunkKey = Tuple[int, int]
+ChunkListener = Callable[[ChunkKey, np.ndarray, int, int], None]
 
 
 class WorldRenderer:
@@ -85,10 +86,16 @@ class WorldRenderer:
         # Defer placeable drawing to a unified y-sort compositor when enabled.
         self.defer_placeables: bool = False
         self._placeable_packets: list["RenderPacket"] = []
+        self._chunk_listeners: list[ChunkListener] = []
 
     def attach_world_builder(self, builder: WorldBuilder) -> None:
         """Attach or replace the world builder used for chunk generation."""
         self._world_builder = builder
+
+    def add_chunk_listener(self, listener: ChunkListener) -> None:
+        """Register a callback that fires whenever a new chunk is generated."""
+        if listener not in self._chunk_listeners:
+            self._chunk_listeners.append(listener)
 
     def render_visible_chunks(
         self,
@@ -262,12 +269,19 @@ class WorldRenderer:
             tiles, objects = self._world_builder.generate_chunk(key[0], key[1])
             self._chunk_tiles[key] = tiles
             self._chunk_objects[key] = objects or []
+            self._notify_chunk_created(key, tiles)
         except Exception as exc:
             print(f"Error generating chunk {key}: {exc}")
             self._chunk_tiles[key] = np.zeros(
                 (self.chunk_size, self.chunk_size), dtype=np.int8
             )
             self._chunk_objects[key] = []
+
+    def _notify_chunk_created(self, key: ChunkKey, tiles: np.ndarray) -> None:
+        if not self._chunk_listeners:
+            return
+        for listener in list(self._chunk_listeners):
+            listener(key, tiles, self.chunk_size, self.tile_size)
 
     def _sync_camera_component(self, camera_rect: pygame.Rect, scale: float) -> None:
         scroll = (float(camera_rect.left), float(camera_rect.top))

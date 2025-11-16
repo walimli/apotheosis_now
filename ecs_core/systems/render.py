@@ -20,8 +20,6 @@ class RenderSystem(System):
         self._scaled_cache: Dict[Tuple[str, Optional[Tuple[int, int]], float], pygame.Surface] = {}
 
     def update(self, dt):
-        self.screen.fill((20, 20, 40))
-
         if self.camera_entity_id is None:
             raise RuntimeError("RenderSystem requires a camera entity to render the world.")
 
@@ -29,28 +27,31 @@ class RenderSystem(System):
         if not camera_component:
             raise RuntimeError("Camera2DComponent missing from the registered camera entity.")
 
-        camera_x = camera_component.rect.left
-        camera_y = camera_component.rect.top
+        camera_rect = camera_component.rect
+        camera_x = camera_rect.left
+        camera_y = camera_rect.top
 
         self._render_basic_primitives(camera_x, camera_y)
         self._render_sprite_entities(camera_x, camera_y)
 
     def _render_basic_primitives(self, camera_x: int, camera_y: int) -> None:
         for _entity, pos, rend in self.world.view(Position, Renderable):
-            sx = pos.x - camera_x + self.screen.get_width() // 2
-            sy = pos.y - camera_y + self.screen.get_height() // 2
+            base_x = pos.render_x if pos.render_x is not None else float(pos.x)
+            base_y = pos.render_y if pos.render_y is not None else float(pos.y)
+            sx = base_x - camera_x
+            sy = base_y - camera_y
             pygame.draw.circle(self.screen, rend.color, (int(sx), int(sy)), rend.radius)
 
     def _render_sprite_entities(self, camera_x: int, camera_y: int) -> None:
-        width_half = self.screen.get_width() // 2
-        height_half = self.screen.get_height() // 2
         for _entity, pos, sprite in self.world.view(Position, RenderableEntityComponent):
             surface = self._get_sprite_surface(sprite)
             if surface is None:
                 continue
 
-            draw_x = pos.x - camera_x + width_half + sprite.offset[0]
-            draw_y = pos.y - camera_y + height_half + sprite.offset[1]
+            base_x = pos.render_x if pos.render_x is not None else float(pos.x)
+            base_y = pos.render_y if pos.render_y is not None else float(pos.y)
+            draw_x = base_x - camera_x + sprite.offset[0]
+            draw_y = base_y - camera_y + sprite.offset[1]
             origin_x = draw_x - surface.get_width() * sprite.anchor[0]
             origin_y = draw_y - surface.get_height() * sprite.anchor[1]
             self.screen.blit(surface, (int(origin_x), int(origin_y)))

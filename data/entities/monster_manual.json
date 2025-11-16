@@ -19,6 +19,11 @@
       "id": "quarce_sprout",
       "display_name": "flower_4",
       "description": "flower_4"
+    },
+    {
+      "id": "skeleton_basic",
+      "display_name": "Skeleton",
+      "description": "Animated bones that lurch toward trespassers."
     }
   ]
 }

@@ -8,9 +8,7 @@ class ControllerSystem:
         self.world = None
         self.input_service = None
         self.ai_service = None
-        self.entity_to_handler: Dict[int, Callable[[int, float], None]] = (
-            {}
-        )  # eid → callable(eid, dt)
+        self.entity_to_handler: Dict[int, Callable[[int, float], None]] = {}  # eid → callable(eid, dt)
 
     def register_entity(self, eid: int, controller: Controller):
         """Called once when entity is created with Controller component."""
@@ -29,11 +27,15 @@ class ControllerSystem:
                 eid, dt
             )
 
+    def unregister_entity(self, eid: int) -> None:
+        self.entity_to_handler.pop(eid, None)
+
     def update(self, dt: float):
         # Only call pre-registered handlers — O(1) per entity, no type checks
         if not self.world:
             return
-        for eid, handler in self.entity_to_handler.items():
+        self._sync_controllers()
+        for eid, handler in list(self.entity_to_handler.items()):
             if self.world.has_entity(eid):  # Still alive
                 handler(eid, dt)
 
@@ -70,3 +72,15 @@ class ControllerSystem:
         else:
             # Create new Velocity component if it doesn't exist
             self.world.add(eid, Velocity(vx=velocity_x, vy=velocity_y))
+
+    def _sync_controllers(self) -> None:
+        if not self.world:
+            return
+        seen = set()
+        for entity_id, controller in self.world.view(Controller):
+            seen.add(entity_id)
+            if entity_id not in self.entity_to_handler:
+                self.register_entity(entity_id, controller)
+        for entity_id in list(self.entity_to_handler.keys()):
+            if entity_id not in seen:
+                self.unregister_entity(entity_id)

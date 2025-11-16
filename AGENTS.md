@@ -64,4 +64,60 @@ Remember our company motto: Minimum Viable Product!
 
 ## Codebase Notes
 
-  - yawnoc_source is the codebase of a different game. It is here only for reference. 
+  - yawnoc_source is the codebase of a different game. It is here only for reference. (ignore this note if you are not aware of yawnoc_source)
+
+
+  ## Available Dependencies
+
+  Before designing a new system/service or refactoring old systems/services, please quickly review this list and identify any library that would likely improve efficiency and reduce the size of the codebase outside of what is normally included in python/pygame.
+
+  ALL Dependencies (Not all are used in codebase, I just have them in case we need them.) 
+
+cffi,Required by pymunk and moderngl
+
+llvmlite,Required by numba
+
+moderngl,Your OpenGL shaders and GPU rendering
+
+noise,"Procedural terrain, biomes, caves"
+
+numba,"Speed up simulation, pathfinding, spawn logic
+"
+numpy,Core of tile/chunk/world data
+
+pillow,"Load textures, sprites, UI images"
+
+pip,Not used at runtime — only for installing
+
+pycparser,Required by cffi
+
+pygame,"Main game loop, input, window"
+
+pygame-ce,Improved Pygame (you likely use this instead of vanilla)
+
+pygame_gui,"In-game UI (menus, buttons, HUD)"
+
+pymunk,"Physics: collisions, gravity, rigid bodies"
+
+PyPDF2,Only if you generate in-game manuals/PDFs — otherwise dev-only
+
+python-i18n,In-game localization (multi-language support)
+
+PyTMX,"Load Tiled maps for levels, spawn zones, etc."
+
+pytweening,"Smooth camera pans, UI animations"
+
+pydantic,"Parse and validate spawn rules, config, save files"
+
+loguru,In-game debug logs (can be disabled in release)
+
+tqdm,Only for world generation progress — can be stripped in release
+
+
+
+# requirements-dev.txt (dev only - not used in game)
+
+py-spy
+snakeviz
+tornado
+glcontext

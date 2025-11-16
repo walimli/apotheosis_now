@@ -1,16 +1,25 @@
-from ecs_core.components.components import Position, Speed
+from __future__ import annotations
+
+import math
+
+from ecs_core.components.components import Speed, Velocity
 
 
 class SpeedSystem:
+    """Clamp entity velocities so they always match their Speed component."""
+
     def __init__(self, world):
         self.world = world
 
     def update(self, dt: float):
-        for eid, (pos, spd) in self.world.view(Position, Speed):
-            # Formula: read speed as pixels per second
-            dx, dy = (
-                1.0,
-                0.0,
-            )  # Default direction (right); override per-entity if needed
-            pos.x += dx * spd.pixels_per_second * dt
-            pos.y += dy * spd.pixels_per_second * dt
+        if dt is None:
+            return
+        for entity_id, spd, vel in self.world.view(Speed, Velocity):
+            magnitude = math.hypot(vel.vx, vel.vy)
+            if magnitude <= 1e-6:
+                vel.vx = 0.0
+                vel.vy = 0.0
+                continue
+            scale = spd.pixels_per_second / magnitude
+            vel.vx *= scale
+            vel.vy *= scale

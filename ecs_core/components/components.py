@@ -25,6 +25,14 @@ class Velocity:
 class Position:
     x: int
     y: int
+    render_x: float | None = None
+    render_y: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.render_x is None:
+            self.render_x = float(self.x)
+        if self.render_y is None:
+            self.render_y = float(self.y)
 
 
 # Example game-specific ones

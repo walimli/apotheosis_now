@@ -1,7 +1,8 @@
 """Chunk surface caching backed by the chunk tile renderer."""
+
 from __future__ import annotations
 
-from typing import Dict, Mapping, Optional, Tuple
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple  # MODIFIED
 
 import numpy as np
 import pygame
@@ -44,6 +45,9 @@ class ChunkCache:
         self.chunk_surfaces: Dict[ChunkKey, pygame.Surface] = {}
         self.chunk_base_tiles: Dict[ChunkKey, np.ndarray] = {}
         self.chunk_data: Dict[ChunkKey, TileRenderData] = {}
+        self._update_listeners: List[
+            Callable[[ChunkKey, np.ndarray, Optional[Sequence]], None]
+        ] = []  # NEW
 
     def get_variant_at(self, tile_x: int, tile_y: int) -> int:
         """Return an encoded variant identifier for a tile."""
@@ -58,7 +62,9 @@ class ChunkCache:
         local_x = tile_x % self.chunk_size
         local_y = tile_y % self.chunk_size
         if local_x < 0 or local_y < 0:
-            raise ValueError(f"Negative local coordinates for tile ({tile_x}, {tile_y})")
+            raise ValueError(
+                f"Negative local coordinates for tile ({tile_x}, {tile_y})"
+            )
         if local_y >= classification.shape[0] or local_x >= classification.shape[1]:
             raise ValueError(
                 f"Tile ({tile_x}, {tile_y}) outside cached bounds for chunk {chunk_key}"
@@ -80,7 +86,9 @@ class ChunkCache:
         local_x = tile_x % self.chunk_size
         local_y = tile_y % self.chunk_size
         if local_x < 0 or local_y < 0:
-            raise ValueError(f"Negative local coordinates for tile ({tile_x}, {tile_y})")
+            raise ValueError(
+                f"Negative local coordinates for tile ({tile_x}, {tile_y})"
+            )
         if local_y >= moss_flags.shape[0] or local_x >= moss_flags.shape[1]:
             raise ValueError(
                 f"Tile ({tile_x}, {tile_y}) outside cached bounds for chunk {chunk_key}"
@@ -137,6 +145,7 @@ class ChunkCache:
         )
         self.chunk_surfaces[key] = render_data.surface
         self.chunk_data[key] = render_data
+        self._notify_update_listeners(key, base_copy, modified_tiles)  # NEW
 
     def _chunk_key(self, tile_x: int, tile_y: int) -> ChunkKey:
         return tile_x // self.chunk_size, tile_y // self.chunk_size
@@ -144,6 +153,28 @@ class ChunkCache:
     def get_chunk_data(self, key: ChunkKey) -> Optional[TileRenderData]:
         """Return cached TileRenderData for a chunk if available."""
         return self.chunk_data.get(key)
+
+    def add_update_listener(  # NEW METHOD
+        self, listener: Callable[[ChunkKey, np.ndarray, Optional[Sequence]], None]
+    ) -> None:
+        """Register a callback invoked when a chunk is updated.
+
+        Callback signature: (chunk_key, tiles, modified_tiles) -> None
+        """
+        if listener not in self._update_listeners:
+            self._update_listeners.append(listener)
+
+    def _notify_update_listeners(  # NEW METHOD
+        self, key: ChunkKey, tiles: np.ndarray, modified_tiles: Optional[Sequence]
+    ) -> None:
+        """Fire chunk update event to all registered listeners."""
+        if not self._update_listeners:
+            return
+        for listener in list(self._update_listeners):
+            try:
+                listener(key, tiles, modified_tiles)
+            except Exception:
+                continue
 
 
 __all__ = ["ChunkCache"]

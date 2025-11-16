@@ -45,7 +45,6 @@ from .components import (
     Renderable,
 )
 
-
 # Animation components
 from .animation_components import (
     Animation,
@@ -54,6 +53,7 @@ from .animation_components import (
 
 # Collision component
 from .collider import Collider
+from .aggressive_components import AggressivePathfindingComponent
 
 from ecs_core.systems.soul.safe_zone import SafeZoneComponent
 
@@ -89,6 +89,8 @@ __all__ = [
     "AnimationState",
     # Collision
     "Collider",
+    # Aggressive AI
+    "AggressivePathfindingComponent",
     # Soul/Safe Zones
     "SafeZoneComponent",
 ]

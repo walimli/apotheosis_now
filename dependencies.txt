@@ -1,0 +1,75 @@
+ALL Dependencies (Not all are used in codebase, I just have them)
+
+cffi 2.0.0
+glcontext 3.0.0
+llvmlite 0.44.0
+moderngl 5.12.0
+noise 1.2.2
+numba 0.61.2
+numpy 2.2.6
+pillow 11.3.0
+pip 25.3
+py-spy 0.4.1
+pycparser 2.23
+pygame 2.6.1
+pygame-ce 2.5.5
+pygame_gui 0.6.14
+pymunk 7.1.0
+PyPDF2 3.0.1
+python-i18n 0.3.9
+PyTMX 3.32
+pytweening 1.2.0
+pydantic
+loguru
+tqdm
+snakeviz 2.2.2
+tornado 6.5.2
+
+
+cffi,"Low-level interface to C libraries from Python (used by pymunk, moderngl)."
+
+glcontext,Creates standalone OpenGL contexts for testing shaders without a window.
+
+llvmlite,LLVM backend for numba — enables JIT compilation of Python to machine code.
+
+moderngl,Modern OpenGL wrapper for writing shaders and rendering with GPU acceleration.
+
+noise,"Generates Perlin/simplex noise for procedural terrain, caves, biomes."
+
+numba,"Speeds up math-heavy Python code (e.g. pathfinding, simulation) via JIT."
+
+numpy,Fast array math — core of all tile/chunk/world data in your game.
+
+pillow,"Load/save images (PNG, JPG) — used for textures, sprites, UI assets."
+
+pip,Python package installer — manages all your dependencies.
+
+py-spy,Live profiler — sample CPU usage of running game to find bottlenecks.
+
+pycparser,Parses C code — used internally by cffi to generate bindings.
+
+pygame,"Main game loop, input, sound, and window — your core engine."
+
+pygame-ce,Community edition of Pygame with bug fixes and performance improvements.
+
+pygame_gui,"Ready-made UI elements (buttons, panels, text) on top of Pygame."
+
+pymunk,"2D physics engine (Chipmunk) — collisions, gravity, rigid bodies."
+
+PyPDF2,Read/write PDF files — likely for generating in-game manuals or debug docs.
+
+python-i18n,Simple internationalization — supports multiple languages via YAML files.
+
+PyTMX,Loads Tiled .tmx maps — lets you design levels in Tiled editor.
+
+pytweening,Easing functions (smooth in/out) — for animations and camera moves.
+
+pydantic,Validates and parses config/data (like spawn rules) with zero boilerplate.
+
+loguru,"Drop-in, beautiful logging with colors, files, and no config needed."
+
+tqdm,Shows progress bars for long loops (e.g. world generation).
+
+snakeviz,Visualizes cProfile output — helps debug performance hotspots.
+
+tornado,"Async web server — likely for dev tools, hot-reload, or debug dashboard."

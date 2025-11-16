@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from ecs_core.entities.entities import Entity, EntityManager
-from ecs_core.entities.evolve_registry import evolvable_registry
+from services.monster_factory.evolve_registry import evolvable_registry
 from ecs_core.entities.flora.sprout_common import (
     SPRITE_ROOT,
     SproutConfig,

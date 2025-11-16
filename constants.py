@@ -10,6 +10,13 @@ CHUNK_SIZE_TILES = 32
 VIEW_DISTANCE_CHUNKS = 1  # 1 => 3x3 neighborhood
 CHUNK_PIXELS = TILE_SIZE * CHUNK_SIZE_TILES
 
+# Tile codes (see services/world_builder/manager.py + moss_builder.py)
+TILE_CODE_VOID = 0
+TILE_CODE_CLAY = 1
+TILE_CODE_REDROCK = 2
+TILE_CODE_STONE = 3
+TILE_CODE_MOSS_OVERLAY = 4  # applied as base*10 + 4 (e.g., 14/24/34)
+
 # Player
 PLAYER_SIZE = 64
 PLAYER_SPEED = 256.0

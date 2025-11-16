@@ -20,7 +20,7 @@ class PlayerConfig:
 
     spawn_position: Tuple[float, float] = (400.0, 300.0)
     speed: float = 512.0
-    collider_diameter: int = 32
+    collider_diameter: int = 64
     animation_size: int = 32
     max_health: int = 10
     controller_type: str = "player_input"

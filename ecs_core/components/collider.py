@@ -10,3 +10,4 @@ class Collider:
     layer: int = constants.LAYER_ENEMY
     mask: int = constants.LAYER_ENEMY
     is_trigger: bool = False
+    enabled: bool = True

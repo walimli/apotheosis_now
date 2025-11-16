@@ -1,0 +1,27 @@
+{
+  "spawn_events": {
+    "world_start": {
+      "spawn_chance": 0.9,
+      "spawn_per": "island",
+      "eligible_tiles": [1],
+      "spawn_number": "randomint(1,5)",
+      "share_tile": false,
+      "exact_position": "pass"
+    },
+    "moss_evolve": {
+      "spawn_chance": 0.6,
+      "spawn_per": "island",
+      "eligible_tiles": [14, 24, 34],
+      "spawn_number": 1,
+      "share_tile": false,
+      "exact_position": "pass"
+    },
+    "sprout_planted": {
+      "spawn_chance": 1.0,
+      "spawn_per": "event",
+      "spawn_number": 1,
+      "share_tile": false,
+      "exact_position": "required"
+    }
+  }
+}

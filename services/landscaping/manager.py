@@ -259,7 +259,9 @@ class LandscapingSystem:
         position = self._world.get(self._player_entity, Position)
         if position is None:
             return None
-        return float(position.x), float(position.y)
+        base_x = position.render_x if position.render_x is not None else float(position.x)
+        base_y = position.render_y if position.render_y is not None else float(position.y)
+        return base_x, base_y
 
     def _update_hover(self) -> None:
         camera = self._camera or self._display

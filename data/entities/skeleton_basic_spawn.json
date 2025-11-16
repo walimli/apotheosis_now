@@ -1,0 +1,12 @@
+{
+  "spawn_events": {
+    "game_hour_passed": {
+      "spawn_chance": 1.0,
+      "spawn_per": "island",
+      "spawn_number": 1,
+      "share_tile": false,
+      "exact_position": "pass",
+      "player_range": [4, 12]
+    }
+  }
+}

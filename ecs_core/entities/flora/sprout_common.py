@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-from constants import LAYER_ENEMY, LAYER_PLAYER
+from constants import LAYER_PICKUP, LAYER_PLAYER
 from ecs_core.components import Drops, Evolve, Health, Position
 from ecs_core.components.collider import Collider
 from ecs_core.components.entity_classes import Plant
@@ -15,7 +15,9 @@ from ecs_core.entities.entities import Entity, EntityManager
 from ecs_core.worlds.world import World
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SPRITE_ROOT = (PROJECT_ROOT / "assets" / "objects" / "grass_shrubs" / "bedlam_fauna").resolve()
+SPRITE_ROOT = (
+    PROJECT_ROOT / "assets" / "objects" / "grass_shrubs" / "bedlam_fauna"
+).resolve()
 
 
 @dataclass
@@ -27,17 +29,17 @@ class SproutConfig:
     defense: int = 0
     collider_diameter: int = 24
     collider_offset: Tuple[int, int] = (0, 0)
-    collider_layer: int = LAYER_ENEMY
+    collider_layer: int = LAYER_PICKUP
     collider_mask: int = LAYER_PLAYER
     drops: Dict[str, float] = field(default_factory=lambda: {"plant_coin": 1.0})
     xp: int = 0
-    evolve_event: str = "DAWN_STARTED"
+    evolve_event: str = "HEARTBEAT"
     next_entity_id: Optional[str] = None
     registry_id: str = "sprout"
     render_layer: int = 0
     render_size: Optional[Tuple[int, int]] = None
     render_scale: float = 1.0
-    render_anchor: Tuple[float, float] = (0.5, 1.0)
+    render_anchor: Tuple[float, float] = (0.5, 0.5)
     render_offset: Tuple[int, int] = (0, 0)
 
 

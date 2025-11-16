@@ -31,6 +31,7 @@ class TimeManager:
         self._event_subscribers: Dict[
             TimeEventType, List[Callable[[TimeEvent], None]]
         ] = {}
+        self.current_event: str | None = None
 
         # Scheduler (game-time and real-time)
         self._next_job_id: int = 1
@@ -65,6 +66,9 @@ class TimeManager:
         Returns:
             List of events that occurred this frame
         """
+        # Reset per-frame event marker
+        self.current_event = None
+
         # Update core clock
         self.clock.update(dt)
 
@@ -264,6 +268,8 @@ class TimeManager:
 
     def _handle_event(self, event: TimeEvent) -> None:
         """Central event bus: fan-out to global callback and subscribers, update stats."""
+        self.current_event = event.event_type.name
+
         # Global callback
         if self._global_event_callback:
             try:
