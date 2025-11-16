@@ -293,23 +293,14 @@ class MonsterFactoryService:
         if not self._world or not self._entity_manager:
             raise RuntimeError("MonsterFactoryService requires world/entity_manager binding")
         entity = evolvable_registry.spawn(entity_id, self._world, self._entity_manager)
-        world_x = float(position[0])
-        world_y = float(position[1])
         position_comp = self._world.get(entity, Position)
         if position_comp:
-            position_comp.x = world_x
-            position_comp.y = world_y
-            position_comp.render_x = world_x
-            position_comp.render_y = world_y
+            position_comp.x = float(position[0])
+            position_comp.y = float(position[1])
         else:
             self._world.add(
                 entity,
-                Position(
-                    x=world_x,
-                    y=world_y,
-                    render_x=world_x,
-                    render_y=world_y,
-                ),
+                Position(x=float(position[0]), y=float(position[1])),
             )
         return entity
 

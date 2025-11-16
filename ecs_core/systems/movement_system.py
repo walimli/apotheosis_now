@@ -16,12 +16,10 @@ class MovementSystem(System):
     def __init__(
         self,
         world,
-        *,
-        world_size: tuple[int, int] = (4096, 4096),
         cell_size: int = 128,
     ) -> None:
         super().__init__(world)
-        self.collision = CollisionSystem(world_size=world_size, cell_size=cell_size)
+        self.collision = CollisionSystem(cell_size=cell_size)
         self.collision_events: list[CollisionEvent] = []
         self._active_entities: Set[int] = set()
 
@@ -32,14 +30,14 @@ class MovementSystem(System):
                 continue
             position = self.world.get(entity_id, Position)
             collider = self.world.get(entity_id, Collider)
-            if position and collider:
-                velocity = self.world.get(entity_id, Velocity)
+            velocity = self.world.get(entity_id, Velocity)
+            if position and collider and velocity:
                 self.collision.register(
                     entity_id,
                     collider,
                     (
-                        self._quantize(position.x, velocity.vx if velocity else None),
-                        self._quantize(position.y, velocity.vy if velocity else None),
+                        self._quantize(position.x, velocity.vx),
+                        self._quantize(position.y, velocity.vy),
                     ),
                 )
                 self._active_entities.add(entity_id)
@@ -118,12 +116,14 @@ class MovementSystem(System):
             if entity_id in self._active_entities:
                 continue
             velocity = self.world.get(entity_id, Velocity)
+            if not velocity:
+                continue
             self.collision.register(
                 entity_id,
                 collider,
                 (
-                    self._quantize(position.x, velocity.vx if velocity else None),
-                    self._quantize(position.y, velocity.vy if velocity else None),
+                    self._quantize(position.x, velocity.vx),
+                    self._quantize(position.y, velocity.vy),
                 ),
             )
             self._active_entities.add(entity_id)

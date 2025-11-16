@@ -27,12 +27,9 @@ class HitInfo:
 
 
 class CollisionSystem:
-    def __init__(
-        self, world_size: Tuple[int, int] = (4096, 4096), cell_size: int = 128
-    ):
-        self.world_w, self.world_h = world_size
+    def __init__(self, *, cell_size: int = 128):
         self.cell_size = cell_size
-        self.grid: Dict[int, List[int]] = {}
+        self.grid: Dict[Tuple[int, int], List[int]] = {}
         self.colliders: Dict[int, Collider] = {}
         self.entity_pos: Dict[int, Tuple[int, int]] = {}
         self.events: List[CollisionEvent] = []
@@ -59,31 +56,27 @@ class CollisionSystem:
     def _rebuild_grid(self):
         self.grid.clear()
         for entity_id, pos in self.entity_pos.items():
-            if entity_id not in self.colliders or not self.colliders[entity_id].enabled:
+            collider = self.colliders.get(entity_id)
+            if collider is None or not collider.enabled:
                 continue
             center = (
-                pos[0] + self.colliders[entity_id].offset_x,
-                pos[1] + self.colliders[entity_id].offset_y,
+                pos[0] + collider.offset_x,
+                pos[1] + collider.offset_y,
             )
-            radius = self.colliders[entity_id].diameter // 2
+            radius = collider.diameter // 2
             min_x, max_x = center[0] - radius, center[0] + radius
             min_y, max_y = center[1] - radius, center[1] + radius
 
-            start_cell_x = max(0, min_x // self.cell_size)
-            end_cell_x = min(
-                self.world_w // self.cell_size, (max_x // self.cell_size) + 1
-            )
-            start_cell_y = max(0, min_y // self.cell_size)
-            end_cell_y = min(
-                self.world_h // self.cell_size, (max_y // self.cell_size) + 1
-            )
+            start_cell_x = min_x // self.cell_size
+            end_cell_x = (max_x // self.cell_size) + 1
+            start_cell_y = min_y // self.cell_size
+            end_cell_y = (max_y // self.cell_size) + 1
 
             for cell_x in range(start_cell_x, end_cell_x):
                 for cell_y in range(start_cell_y, end_cell_y):
-                    cell_hash = cell_x * (self.world_h // self.cell_size + 1) + cell_y
-                    if cell_hash not in self.grid:
-                        self.grid[cell_hash] = []
-                    self.grid[cell_hash].append(entity_id)
+                    cell_hash = (cell_x, cell_y)
+                    bucket = self.grid.setdefault(cell_hash, [])
+                    bucket.append(entity_id)
 
     def _process_collisions(self):
         processed = set()
@@ -168,22 +161,22 @@ class CollisionSystem:
         self, center: Tuple[int, int], radius: int, layer_mask: int = -1
     ) -> List[int]:
         results = set()
-        query_radius = radius
-        min_x = center[0] - query_radius
-        max_x = center[0] + query_radius
-        min_y = center[1] - query_radius
-        max_y = center[1] + query_radius
+        min_x = center[0] - radius
+        max_x = center[0] + radius
+        min_y = center[1] - radius
+        max_y = center[1] + radius
 
-        start_cell_x = max(0, min_x // self.cell_size)
-        end_cell_x = min(self.world_w // self.cell_size, (max_x // self.cell_size) + 1)
-        start_cell_y = max(0, min_y // self.cell_size)
-        end_cell_y = min(self.world_h // self.cell_size, (max_y // self.cell_size) + 1)
+        start_cell_x = min_x // self.cell_size
+        end_cell_x = (max_x // self.cell_size) + 1
+        start_cell_y = min_y // self.cell_size
+        end_cell_y = (max_y // self.cell_size) + 1
 
         for cell_x in range(start_cell_x, end_cell_x):
             for cell_y in range(start_cell_y, end_cell_y):
-                cell_hash = cell_x * (self.world_h // self.cell_size + 1) + cell_y
-                if cell_hash in self.grid:
-                    for entity_id in self.grid[cell_hash]:
+                cell_hash = (cell_x, cell_y)
+                bucket = self.grid.get(cell_hash)
+                if bucket:
+                    for entity_id in bucket:
                         coll = self.colliders[entity_id]
                         if not coll.enabled or (
                             layer_mask != -1 and not (coll.layer & layer_mask)
@@ -215,7 +208,7 @@ class CollisionSystem:
         closest_point = None
         closest_normal = None
 
-        steps = int(length) + 1
+        steps = max(1, int(length))
         for i in range(steps):
             t = i / steps
             current = (start[0] + dir_x * length * t, start[1] + dir_y * length * t)

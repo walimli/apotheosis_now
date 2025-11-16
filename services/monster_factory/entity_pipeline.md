@@ -64,10 +64,10 @@ All spawn files are lazy-loaded: the factory only parses a file the first time o
 ## Event Wiring
 
 ### Chunk Generation (`world_start`)
-1. PlayState constructs `WorldRenderer` and `MonsterFactoryService` during `_initialize_services`.
-2. `world_renderer.add_chunk_listener(monster_factory.handle_chunk_created)` wires the service so it sees every chunk that is cached for the first time.
-3. Each chunk callback constructs a context with the chunk key, tile array, and chunk/tile sizes, then calls `monster_factory._process_event("world_start", context)`.
-4. Spawn rules that target `world_start` evaluate against the chunk’s tile data: the service finds islands, picks eligible tiles, and calls `_spawn_entity`.
+1. `build_services()` (states/play/bootstrap/services.py) constructs `WorldRenderer` and `MonsterFactoryService`, then immediately wires `world_renderer.add_chunk_listener(monster_factory.handle_chunk_created)`.
+2. `PlayState.update()` calls `_prepare_world_chunks()`, which asks the renderer to `ensure_chunks_for_camera()`. Whenever the cache requests a chunk that does not exist yet, `WorldRenderer._ensure_chunk_data()` generates it via `WorldBuilder` and notifies its chunk listeners.
+3. Each chunk callback builds a context with the chunk key, tile array, and chunk/tile sizes, then calls `monster_factory._process_event("world_start", context)`.
+4. Spawn rules that target `world_start` evaluate against the chunk's tile data: the service finds islands, picks eligible tiles, and calls `_spawn_entity`.
 
 ### Time Events
 1. PlayState instantiates `TimeManager` and `monster_factory.attach_time_manager(self.time_manager)` immediately after the chunk wiring.
@@ -84,34 +84,36 @@ Any system can call `monster_factory.emit_event("sprout_planted", {"world_positi
 
 Given an entity ID, the registry calls the factory with the ECS `World` and `EntityManager`. After creation, the monster factory ensures a `Position` component exists and offsets it to the candidate tile’s center.
 
+**Position + rendering cache expectations**
+
+- `Position` (ecs_core/components/components.py) now tracks both integer collision coordinates (`x`, `y`) and float render coordinates (`render_x`, `render_y`). Systems that move or spawn entities outside the movement system must update *both* sets of fields so renderers, cameras, and selection helpers stay in sync. `_spawn_entity()` writes all four values, and `EvolveSystem` overwrites the caches again whenever an entity evolves to a new stage.
+- MovementSystem registers only entities that also have `Velocity`; static entities such as sprouts remain outside the integration loop so their cached coordinates are not overwritten. If a system later grants them velocity, MovementSystem will start driving both world and render coordinates automatically.
+- RenderSystem, animation, camera tracking, and landscaping now read `render_x/render_y` first to maintain sub-pixel accuracy. The caches are authoritative unless explicitly `None`, so stale values here will cause sprites to render at the wrong location even if `x/y` has been updated.
+
 ## PlayState Integration
 
+The current bootstrap is split between helper modules:
+
 ```python
-# states/play/play_state.py
-from services.monster_factory import MonsterFactoryService
+# states/play/bootstrap/services.py
+services = build_services(display, audio_manager, project_root)
+# - wires renderer -> monster_factory chunk listener
+# - wires monster_factory -> time_manager
 
-def _initialize_services(self):
-    ...
-    self.world_renderer = WorldRenderer(...)
-    self.monster_factory = MonsterFactoryService(
-        project_root=self.project_root,
-        chunk_size=world_builder.chunk_size,
-        tile_size=self.world_renderer.tile_size,
-    )
-    self.world_renderer.add_chunk_listener(self.monster_factory.handle_chunk_created)
-    self.time_manager = TimeManager()
-    self.monster_factory.attach_time_manager(self.time_manager)
-    ...
-
-def _initialize_ecs(self):
-    self.ecs_world = World()
-    self.entity_manager = EntityManager()
-    ...
-    self.monster_factory.bind_world(self.ecs_world, self.entity_manager)
+# states/play/bootstrap/ecs_runtime.py
+ecs_runtime = create_ecs_runtime(play_state, display, services)
+# - creates World + EntityManager
+# - binds services.monster_factory.bind_world(world, entity_manager)
 ```
 
-- Chunk listeners fire before the ECS world exists, so the factory queues events until `bind_world` is called. Once the world and entity manager are ready, the queued chunk events replay automatically.
-- PlayState does **not** attempt to spawn entities itself; it simply forwards events to the factory and keeps rendering concerns in `WorldRenderer` + `RenderSystem`.
+- Chunk listeners can fire before the ECS world exists, so the factory queues events until `bind_world` is called inside `create_ecs_runtime()`. Once the world and entity manager are ready, the queued chunk events replay automatically.
+- PlayState never touches spawn logic directly; it only triggers chunk generation via `_prepare_world_chunks()` and routes input/time systems. Bootstrap edits must therefore happen in the helper modules, not inside PlayState itself.
+
+### Current-state discrepancies vs. original documentation
+
+- **Initialization location**: Earlier revisions implied `_initialize_services()` inside PlayState performed service construction/wiring. After the refactor, the wiring now lives in `build_services()` / `create_ecs_runtime()`. Update any onboarding docs or troubleshooting steps accordingly.
+- **Chunk generation trigger**: The original write-up glossed over how chunks were created. Today, `PlayState.update()` is the only driver through `_prepare_world_chunks()`, so `WORLD_START_EVENT` fires lazily in response to camera demand rather than an eager full-world bootstrap.
+
 
 ## Evolve System
 
@@ -134,10 +136,10 @@ def _initialize_ecs(self):
 ## Runtime Checklist
 
 - `MonsterFactoryService` created in PlayState `_initialize_services`.
-- `world_renderer.add_chunk_listener` connected before chunk generation.
+- `world_renderer.add_chunk_listener` connected inside `build_services()` before chunk generation.
 - `monster_factory.attach_time_manager` called before `TimeManager.update`.
-- `_initialize_ecs` binds the world/entity manager to the factory.
+- `create_ecs_runtime()` binds the world/entity manager to the factory.
 - `EvolveSystem` runs each frame so `Evolve` components respond to time events.
 - `RenderSystem.update` called during PlayState.render to draw spawned entities.
 
-With those pieces in place, all non-player entities are fully data driven: designers adjust JSON files, engineers add entity factories, and the monster factory handles the rest.***
+With those pieces in place, all non-player entities are fully data driven: designers adjust JSON files, engineers add entity factories, and the monster factory handles the rest—aside from the present sprout `world_start` gap noted above.***

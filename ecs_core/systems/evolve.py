@@ -34,7 +34,15 @@ class EvolveSystem:
             return
 
         old_pos = self.world.get_component(old_eid, Position)
-        pos_data = (old_pos.x, old_pos.y) if old_pos else (0, 0)
+        if old_pos:
+            pos_data = (
+                float(old_pos.x),
+                float(old_pos.y),
+                float(old_pos.render_x if old_pos.render_x is not None else old_pos.x),
+                float(old_pos.render_y if old_pos.render_y is not None else old_pos.y),
+            )
+        else:
+            pos_data = (0.0, 0.0, 0.0, 0.0)
 
         self.world.destroy_entity(old_eid)
 
@@ -46,4 +54,7 @@ class EvolveSystem:
         new_pos = self.world.get(new_entity, Position)
         if not new_pos:
             return
-        new_pos.x, new_pos.y = pos_data
+        new_pos.x = pos_data[0]
+        new_pos.y = pos_data[1]
+        new_pos.render_x = pos_data[2]
+        new_pos.render_y = pos_data[3]
