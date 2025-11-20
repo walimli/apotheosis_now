@@ -20,6 +20,7 @@ from .inventory_adapters import (
     HotbarInputAdapter,
 )
 from .targeting_adapter import TargetingInputAdapter
+from .player_action_router import PrimaryActionRouter
 
 __all__ = [
     "PlayAction",
@@ -39,4 +40,5 @@ __all__ = [
     "InteractiblesInputAdapter",
     "InventoryLockInputAdapter",
     "TargetingInputAdapter",
+    "PrimaryActionRouter",
 ]

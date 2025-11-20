@@ -1,69 +1,48 @@
-# DEVELOPER INSTRUCTIONS
+# Project: Apotheosis Now
 
-Welcome to the team Codex! So glad to have you. Are you excited to work in pygame?
+## Project Overview
 
-## MANDATORY WORKFLOW REQUIREMENTS
+This project is a 2D RPG/crafting game named "The Dark Lord of Crafting", developed in Python using the Pygame library. The game features a modern rendering pipeline with OpenGL shaders (via `moderngl`), a physics engine (`pymunk`), and a performant architecture leveraging an Entity-Component-System (ECS) pattern. The codebase is well-structured, with a clear separation of concerns between game states, services, and the ECS core.
 
-### Planning Step Protocol
-**ALWAYS** begin every new task with a Planning Step:
-1. **Investigate** as directed by the user
-2. **Formulate** a complete TODO list regarding the request
-3. **Create** a multi-phase plan if the task is complex
-4. **Ask the user for confirmation** of the TODO list before proceeding
-5. **Wait for explicit approval** before writing any code
+### Key Technologies:
 
-### Pre-Code Requirements
-- **NEVER** change or write code unless the Planning Step has been completed
-- **NEVER** proceed without user confirmation of the TODO list
-- Code changes are only permitted after explicit user approval
+*   **Game Engine:** Pygame
+*   **Rendering:** `moderngl` for OpenGL shaders and GPU-accelerated rendering.
+*   **Physics:** `pymunk` for 2D physics simulations.
+*   **Performance:** `numba` for JIT compilation of performance-critical code.
+*   **Architecture:** State Machine and Entity-Component-System (ECS).
+*   **UI:** `pygame_gui` for in-game UI elements.
+*   **Mapping:** `PyTMX` for loading maps created in the Tiled editor.
 
-### Implementation Standards
-- **NEVER** institute fallbacks in code
-- A change either works or it doesn't - failures must be immediately visible
-- **NEVER** add debug messages for in-game behaviors unless explicitly instructed
-- All code changes must be direct and purposeful
+## Building and Running
 
-### Testing and Execution Restrictions
-- **NEVER** attempt to use `main.py` or run the game yourself
-- **You cannot run the game or test implementations independently**
-- **ALWAYS** ask the user to test the game when verification is needed
-- **NEVER** create test files or ad hoc testing environments
-- **NEVER** create external test implementations outside the main game
+**Dependencies:**
 
-### Change Management
-- **NEVER** make changes the user has not requested or agreed to
-- **NEVER** create backwards compatibility for legacy code when implementing new functions
+The project's dependencies are listed in `dependencies.txt`. They can be installed using pip:
 
-Remember our company motto: Minimum Viable Product!
+```bash
+pip install -r dependencies.txt
+```
 
-## Event-Driven Updates (Do Not Poll Per Frame)
+**Running the Game:**
 
-- General principles
-  - Prefer event-driven updates over per-frame polling for state changes and input.
-  - Only run deterministic, time-based work in `update()` (e.g., physics, animation, timers, rendering prep).
+The main entry point for the game is `main.py`. To run the game, execute the following command:
 
-- Anti-patterns to avoid
-  - Cross-system polling in update loops (signature: `if external_system.flag: ...`).
-  - Input polling in update loops (`pygame.key.get_pressed()`, `pygame.mouse.get_pos()`, `pygame.mouse.get_pressed()`).
-  - Busy loops or ad hoc frame loops outside the central state manager.
+```bash
+python main.py
+```
 
-- Input handling rules
-  - Use pygame events (KEYDOWN/UP, MOUSEMOTION, MOUSEBUTTONDOWN/UP, MOUSEWHEEL) or the `PlayInputBus` to react to input.
-  - Cache cursor position/hover state on events; do not re-query devices in `update()`.
-  - Use axis aggregation via the input bus for movement; do not implement custom key scanning.
+**Testing:**
 
-- Cross-system state changes
-  - Use explicit signals/listeners or a shared bus for state transitions (e.g., `CraftingStateChanged(active: bool)`).
-  - Subscribe during bootstrap and seed initial state once; unsubscribe/clear on teardown.
-  - Do not reach across systems in `update()` to check flags; maintain local state set by events.
+The project does not have a dedicated test suite. The `AGENTS.md` file explicitly states that the AI agent should not create or run tests, but should rely on the user for verification.
 
-- Implementation standards (enforced)
-  - No fallbacks or legacy code paths once event-driven wiring is in place.
-  - Do not keep deprecated polling code; remove it as part of the change.
+## Development Conventions
 
-- PR checklist
-  - No uses of `pygame.key.get_pressed()`, `pygame.mouse.get_pressed()`, or `pygame.mouse.get_pos()` inside update paths.
-  - No cross-system flag reads inside `update()` (search for `.active`, `.enabled`, `is_*` across systems).
-  - Input logic reacts via events/`PlayInputBus`; hover/selection updated on `MOUSEMOTION`.
-  - Cross-system coupling uses listeners/callbacks or bus signals, wired once in bootstrap.
-  - New/changed systems document why any per-frame work is required.
+The `AGENTS.md` file outlines a strict, plan-driven development workflow:
+
+1.  **Planning Step:** Before any code is written, a detailed TODO list must be created and approved by the user.
+2.  **No Direct Execution:** The AI agent is not allowed to run the game or create test files. All verification must be done by the user.
+3.  **Event-Driven Design:** The codebase emphasizes an event-driven approach over per-frame polling for input and state changes.
+4.  **No Fallbacks:** Code changes should be direct and purposeful, without fallbacks for legacy code.
+
+The project uses modern Python features, including type hints, and has a well-organized structure that separates different aspects of the game into distinct modules.

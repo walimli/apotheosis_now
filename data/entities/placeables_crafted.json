@@ -1,0 +1,24 @@
+{
+  "entities": [
+    { "id": "glow_seedling", "display_name": "Glow Seedling", "description": "A freshly planted glow spore." },
+    { "id": "glow_sapling", "display_name": "Glow Sapling", "description": "A young glow tree that shimmers faintly." },
+    { "id": "glow_mature", "display_name": "Glow Tree", "description": "A mature glow tree ready to shed spores." },
+    { "id": "glow_ancient", "display_name": "Ancient Glow Tree", "description": "An ancient glow tree brimming with treasure." },
+    { "id": "crystal_seedling", "display_name": "Crystal Seed", "description": "A nascent shard of crystallized mana." },
+    { "id": "crystal_sapling", "display_name": "Crystal Sapling", "description": "Small crystal clusters forming." },
+    { "id": "crystal_mature", "display_name": "Crystal Colony", "description": "A mature cluster of valuable crystals." },
+    { "id": "crystal_ancient", "display_name": "Ancient Crystal", "description": "An enormous, stable ancient crystal." },
+    { "id": "skull_candle", "display_name": "Skull Candle", "description": "A warding candle infused with soul light." },
+    { "id": "skull_shrine", "display_name": "Skull Shrine", "description": "A powerful shrine that anchors the void." },
+    { "id": "stone_fence_bottom", "display_name": "Stone Fence (Bottom)", "description": "Bottom-facing stone fence segment." },
+    { "id": "stone_fence_top", "display_name": "Stone Fence (Top)", "description": "Top-facing stone fence segment." },
+    { "id": "stone_fence_left", "display_name": "Stone Fence (Left)", "description": "Left-facing stone fence segment." },
+    { "id": "stone_fence_right", "display_name": "Stone Fence (Right)", "description": "Right-facing stone fence segment." },
+    { "id": "stone_fence_hcon", "display_name": "Stone Fence (Horizontal)", "description": "Horizontal connector stone fence." },
+    { "id": "stone_fence_vcon", "display_name": "Stone Fence (Vertical)", "description": "Vertical connector stone fence." },
+    { "id": "stone_fence_tlc", "display_name": "Stone Fence (Top-Left)", "description": "Top-left stone fence corner." },
+    { "id": "stone_fence_trc", "display_name": "Stone Fence (Top-Right)", "description": "Top-right stone fence corner." },
+    { "id": "stone_fence_blc", "display_name": "Stone Fence (Bottom-Left)", "description": "Bottom-left stone fence corner." },
+    { "id": "stone_fence_brc", "display_name": "Stone Fence (Bottom-Right)", "description": "Bottom-right stone fence corner." }
+  ]
+}

@@ -6,6 +6,8 @@ import math
 from typing import Dict, Iterable, Optional, Set
 
 from ecs_core.components import Collider, Position, Velocity
+from ecs_core.components.static_body import StaticBody
+from ecs_core.components.physics import Friction
 from ecs_core.systems.collision.collision import CollisionEvent, CollisionSystem
 from ecs_core.systems_base import System
 
@@ -32,6 +34,8 @@ class MovementSystem(System):
             collider = self.world.get(entity_id, Collider)
             velocity = self.world.get(entity_id, Velocity)
             if position and collider and velocity:
+                if self.world.get(entity_id, StaticBody) is not None:
+                    collider.immovable = True
                 self.collision.register(
                     entity_id,
                     collider,
@@ -66,6 +70,17 @@ class MovementSystem(System):
             base_y = position.render_y if position.render_y is not None else float(position.y)
             velocity = self.world.get(entity_id, Velocity)
             if velocity:
+                # Apply friction if present
+                friction = self.world.get(entity_id, Friction)
+                if friction:
+                    drag_factor = pow(friction.drag, dt)
+                    velocity.vx *= drag_factor
+                    velocity.vy *= drag_factor
+                    speed_sq = velocity.vx**2 + velocity.vy**2
+                    if speed_sq < friction.min_velocity**2:
+                        velocity.vx = 0.0
+                        velocity.vy = 0.0
+
                 new_x = base_x + velocity.vx * dt
                 new_y = base_y + velocity.vy * dt
             else:
@@ -116,14 +131,17 @@ class MovementSystem(System):
             if entity_id in self._active_entities:
                 continue
             velocity = self.world.get(entity_id, Velocity)
-            if not velocity:
-                continue
+            # Treat missing velocity as (0.0, 0.0) for static entities
+            vx = velocity.vx if velocity else 0.0
+            vy = velocity.vy if velocity else 0.0
+            if self.world.get(entity_id, StaticBody) is not None:
+                collider.immovable = True
             self.collision.register(
                 entity_id,
                 collider,
                 (
-                    self._quantize(position.x, velocity.vx),
-                    self._quantize(position.y, velocity.vy),
+                    self._quantize(position.x, vx),
+                    self._quantize(position.y, vy),
                 ),
             )
             self._active_entities.add(entity_id)

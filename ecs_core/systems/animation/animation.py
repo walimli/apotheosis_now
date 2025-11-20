@@ -3,6 +3,7 @@ from typing import Optional
 
 from ecs_core.components import Position, Velocity
 from ecs_core.components.animation_components import Animation, AnimationState
+from ecs_core.components.rendering_components import RenderableEntityComponent
 
 
 class AnimationSystem:
@@ -13,10 +14,16 @@ class AnimationSystem:
         self.sheet_cache: dict[str, pygame.Surface] = {}
         self.frame_cache: dict[tuple[str, str], list[pygame.Rect]] = {}
 
-    def _load_sheet(self, path: str) -> pygame.Surface:
-        if path not in self.sheet_cache:
-            self.sheet_cache[path] = pygame.image.load(path).convert_alpha()
-        return self.sheet_cache[path]
+    def _load_sheet(self, path: str) -> Optional[pygame.Surface]:
+        if path in self.sheet_cache:
+            return self.sheet_cache[path]
+        try:
+            surface = pygame.image.load(path).convert_alpha()
+        except pygame.error as exc:
+            print(f"[AnimationSystem] Failed to load sheet '{path}': {exc}")
+            return None
+        self.sheet_cache[path] = surface
+        return surface
 
     def _ensure_frames(
         self, anim: Animation, action: str, sheet_path: Optional[str]
@@ -27,14 +34,31 @@ class AnimationSystem:
         if cache_key in self.frame_cache:
             return
         row_idx = self._row_index(anim, action)
-        if row_idx is None:
-            return
         sheet = self._load_sheet(sheet_path)
+        if sheet is None:
+            return
         frame_count = anim.actions[action]
+
+        sheet_w, sheet_h = sheet.get_size()
+        columns = max(1, anim.frame_w and sheet_w // anim.frame_w)
+        rows = max(1, anim.frame_h and sheet_h // anim.frame_h)
+        start_index = 0
+        if row_idx is not None:
+            start_index = max(0, row_idx) * columns
+
         frames: list[pygame.Rect] = []
         for i in range(frame_count):
+            idx = start_index + i
+            row = idx // columns
+            col = idx % columns
+            if row >= rows:
+                print(
+                    f"[AnimationSystem] Truncated frames for action '{action}' "
+                    f"(requested {frame_count}, available {len(frames)}) in sheet '{sheet_path}'"
+                )
+                break
             rect = pygame.Rect(
-                i * anim.frame_w, row_idx * anim.frame_h, anim.frame_w, anim.frame_h
+                col * anim.frame_w, row * anim.frame_h, anim.frame_w, anim.frame_h
             )
             frames.append(rect)
         self.frame_cache[cache_key] = frames
@@ -79,6 +103,9 @@ class AnimationSystem:
                 self._ensure_frames(anim, state.current_action, sheet_path)
                 frames = self.frame_cache.get(cache_key)
                 if not frames:
+                    print(f"[AnimationSystem] No frames for action '{state.current_action}' in sheet '{sheet_path}'")
+                    state.timer = 0.0
+                    state.frame_idx = 0
                     continue
 
                 state.timer += dt
@@ -87,11 +114,12 @@ class AnimationSystem:
                     state.timer -= frame_duration
                     state.frame_idx = (state.frame_idx + 1) % len(frames)
             else:
+                print("[AnimationSystem] Animation missing sheet_path; resetting state.")
                 state.timer = 0.0
                 state.frame_idx = 0
 
     def render(self, surface: pygame.Surface, camera_x: int, camera_y: int) -> None:
-        for _eid, (anim, state, pos) in self.world.get_components(
+        for eid, (anim, state, pos) in self.world.get_components(
             Animation, AnimationState, Position
         ):
             sheet_path = self._sheet_for_state(anim, state)
@@ -103,6 +131,10 @@ class AnimationSystem:
             sheet = self.sheet_cache.get(sheet_path)
             frames = self.frame_cache.get(cache_key)
             if not sheet or not frames:
+                print(
+                    f"[AnimationSystem] Entity {eid} missing sheet/frames for '{state.current_action}' "
+                    f"({sheet_path}); skipping render."
+                )
                 self._ensure_frames(anim, state.current_action, sheet_path)
                 sheet = self.sheet_cache.get(sheet_path)
                 frames = self.frame_cache.get(cache_key)
@@ -110,19 +142,35 @@ class AnimationSystem:
                 continue
 
             src_rect = frames[state.frame_idx % len(frames)]
+            frame_surface = sheet.subsurface(src_rect).copy()
+            renderable = self.world.get(eid, RenderableEntityComponent)
+            anchor = (renderable.anchor if renderable else (0.5, 0.5))
+            offset = renderable.offset if renderable else (0, 0)
+            scale = float(renderable.scale) if renderable else 1.0
+            size = renderable.size if renderable else None
+
+            if size:
+                frame_surface = pygame.transform.smoothscale(frame_surface, size)
+            elif abs(scale - 1.0) > 1e-6:
+                width = max(1, int(round(frame_surface.get_width() * scale)))
+                height = max(1, int(round(frame_surface.get_height() * scale)))
+                frame_surface = pygame.transform.smoothscale(frame_surface, (width, height))
+
             base_x = pos.render_x if pos.render_x is not None else float(pos.x)
             base_y = pos.render_y if pos.render_y is not None else float(pos.y)
-            screen_x = base_x - camera_x
-            screen_y = base_y - camera_y
+            draw_x = base_x - camera_x + offset[0]
+            draw_y = base_y - camera_y + offset[1]
 
             variant = getattr(state, "variant", "") or "default"
             if self._should_flip(anim, variant, state.facing_left):
-                frame_surface = pygame.transform.flip(
-                    sheet.subsurface(src_rect), True, False
-                )
-                surface.blit(frame_surface, (screen_x, screen_y))
-            else:
-                surface.blit(sheet, (screen_x, screen_y), src_rect)
+                frame_surface = pygame.transform.flip(frame_surface, True, False)
+
+            origin_x = draw_x - frame_surface.get_width() * anchor[0]
+            origin_y = draw_y - frame_surface.get_height() * anchor[1]
+            surface.blit(
+                frame_surface,
+                (int(round(origin_x)), int(round(origin_y))),
+            )
 
     def _drive_state_from_movement(
         self,

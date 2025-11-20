@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-from constants import LAYER_PICKUP, LAYER_PLAYER
-from ecs_core.components import Drops, Evolve, Health, Position
+from constants import LAYER_PICKUP, LAYER_PLAYER, LAYER_PROJECTILE
+from ecs_core.components import Drops, Evolve, Health, HitBox, Position
 from ecs_core.components.collider import Collider
 from ecs_core.components.entity_classes import Plant
 from ecs_core.components.rendering_components import RenderableEntityComponent
@@ -30,7 +30,7 @@ class SproutConfig:
     collider_diameter: int = 24
     collider_offset: Tuple[int, int] = (0, 0)
     collider_layer: int = LAYER_PICKUP
-    collider_mask: int = LAYER_PLAYER
+    collider_mask: int = LAYER_PROJECTILE
     drops: Dict[str, float] = field(default_factory=lambda: {"plant_coin": 1.0})
     xp: int = 0
     evolve_event: str = "HEARTBEAT"
@@ -79,6 +79,7 @@ def spawn_sprout_entity(
             is_trigger=False,
         ),
     )
+    world.add(entity, HitBox())
     world.add(
         entity,
         RenderableEntityComponent(

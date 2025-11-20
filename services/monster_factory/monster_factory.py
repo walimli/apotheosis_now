@@ -11,6 +11,7 @@ import numpy as np
 
 from constants import CHUNK_SIZE_TILES, TILE_SIZE, TILE_CODE_VOID
 from ecs_core.components import Position
+from ecs_core.components.rendering_components import RenderableEntityComponent
 from ecs_core.components.entity_classes import Player
 from ecs_core.entities.entities import EntityManager, Entity
 from .evolve_registry import evolvable_registry
@@ -105,6 +106,38 @@ class MonsterFactoryService:
         """Allow other systems to trigger factory events (e.g., planting)."""
         self._process_event(event_name, payload or {})
 
+    def spawn_attack_entity(self, attack_id: str, position: Tuple[float, float]) -> Entity:
+        """Spawn an attack entity at an explicit world position."""
+        if not self._world or not self._entity_manager:
+            raise RuntimeError("MonsterFactoryService requires world/entity_manager binding")
+        return self._spawn_entity(attack_id, position)
+
+    def spawn_entity_by_id(self, entity_id: str, position: Tuple[float, float]) -> Entity:
+        """Public entry point for deterministic spawns (e.g., placement service)."""
+        if not self._world or not self._entity_manager:
+            raise RuntimeError("MonsterFactoryService requires world/entity_manager binding")
+        try:
+            print(f"[MonsterFactory] Spawning '{entity_id}' at {position}")
+            entity = self._spawn_entity(entity_id, position)
+            pos_comp = self._world.get(entity, Position)
+            renderable = self._world.get(entity, RenderableEntityComponent) if self._world else None
+            print(
+                f"[MonsterFactory] Spawned entity {entity} | "
+                f"Position: ({getattr(pos_comp, 'x', None)}, {getattr(pos_comp, 'y', None)}) | "
+                f"Renderable: {getattr(renderable, 'sprite_path', None)}"
+            )
+            return entity
+        except Exception as exc:
+            print(f"[MonsterFactory] Failed to spawn '{entity_id}': {exc}")
+            raise
+
+    def spawn_entity_at_tile(self, entity_id: str, tile_coord: TileCoord) -> Entity:
+        """Helper that converts a tile coordinate into the correct world-space center."""
+        tile_x, tile_y = tile_coord
+        world_x = tile_x * self._tile_size + self._tile_size * 0.5
+        world_y = tile_y * self._tile_size + self._tile_size * 0.5
+        return self.spawn_entity_by_id(entity_id, (world_x, world_y))
+
     # --- Event routing -------------------------------------------------
     def _handle_time_event(self, event: TimeEvent) -> None:
         event_name = event.event_type.name.lower()
@@ -173,6 +206,8 @@ class MonsterFactoryService:
             self._spawn_per_void(rule, chunk, tiles, chunk_size, tile_size, player_tile)
         elif rule.spawn_per == "tile":
             self._spawn_per_tile(rule, chunk, tiles, chunk_size, tile_size, player_tile)
+        elif rule.spawn_per == "chunk":
+            self._spawn_per_chunk(rule, chunk, tiles, chunk_size, tile_size, player_tile)
         elif rule.spawn_per == "event":
             # Event-driven rule but no explicit world position provided.
             return
@@ -274,6 +309,42 @@ class MonsterFactoryService:
             )
             self._spawn_at_tiles(rule.entity_id, positions, chunk_key, chunk_size, tile_size)
 
+    def _spawn_per_chunk(
+        self,
+        rule: SpawnRule,
+        chunk_key: ChunkKey,
+        tiles: np.ndarray,
+        chunk_size: int,
+        tile_size: int,
+        player_tile: Optional[TileCoord],
+    ) -> None:
+        coords: List[TileCoord] = []
+        rows, cols = tiles.shape
+        for row in range(rows):
+            for col in range(cols):
+                coord = (col, row)
+                if rule.eligible_tiles is None:
+                    coords.append(coord)
+                elif tile_is_eligible(
+                    tiles,
+                    coord,
+                    rule.eligible_tiles,
+                    include_void=True,
+                ):
+                    coords.append(coord)
+        coords = filter_by_player_range(
+            coords, chunk_key, chunk_size, player_tile, rule.player_range_tiles
+        )
+        if not coords:
+            return
+        if self._rng.random() > rule.spawn_chance:
+            return
+        spawn_count = max(0, rule.roll_count(self._rng))
+        if spawn_count <= 0:
+            return
+        positions = choose_positions(coords, spawn_count, rule.allow_shared_tile, self._rng)
+        self._spawn_at_tiles(rule.entity_id, positions, chunk_key, chunk_size, tile_size)
+
     # --- Helpers -------------------------------------------------------
     def _spawn_at_tiles(
         self,
@@ -362,6 +433,14 @@ class MonsterFactoryService:
             "ecs_core.entities.flora.thrice_sprout",
             "ecs_core.entities.flora.quarce_sprout",
             "ecs_core.entities.skeleton",
+            "ecs_core.entities.treasure_core",
+            "ecs_core.entities.attacks.wooden_sword",
+            "ecs_core.entities.inventory_entities",
+            "ecs_core.entities.crafted.glow_tree",
+            "ecs_core.entities.crafted.crystal_colony",
+            "ecs_core.entities.crafted.skull_candle",
+            "ecs_core.entities.crafted.skull_shrine",
+            "ecs_core.entities.crafted.stone_fence",
         ]
         for module in modules:
             try:

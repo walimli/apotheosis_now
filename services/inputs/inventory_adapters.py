@@ -33,7 +33,7 @@ class CraftingInputAdapter(BaseInputAdapter):
             return
         system = self._system()
         if system is not None:
-            system.handle_cursor_move(state.cursor_pos)
+            system.handle_cursor_move(self._base_cursor_pos(state))
         self._update_button_hover(state)
 
     def _on_use_inventory(self, action: PlayAction, state: PlayInputState) -> None:
@@ -46,7 +46,7 @@ class CraftingInputAdapter(BaseInputAdapter):
         if button and button.pressed:
             if self._handle_button_click(state, mouse_button=1, system=system):
                 return
-            system.handle_primary_action(state.cursor_pos)
+            system.handle_primary_action(self._base_cursor_pos(state))
 
     def _on_variant_cycle(self, action: PlayAction, state: PlayInputState) -> None:
         if action != PlayAction.VARIANT_CYCLE:
@@ -56,7 +56,7 @@ class CraftingInputAdapter(BaseInputAdapter):
             return
         button = state.buttons.get(PlayAction.VARIANT_CYCLE)
         if button and button.pressed:
-            system.handle_secondary_action(state.cursor_pos)
+            system.handle_secondary_action(self._base_cursor_pos(state))
 
     def _on_toggle_action(self, action: PlayAction, state: PlayInputState) -> None:
         if action != PlayAction.CRAFT_TOGGLE:
@@ -127,6 +127,27 @@ class CraftingInputAdapter(BaseInputAdapter):
         if handled:
             system.toggle()
         return handled
+
+    def _base_cursor_pos(self, state: PlayInputState) -> Optional[Tuple[int, int]]:
+        pos = getattr(state, "cursor_screen_pos", None)
+        return self._map_screen_to_base(pos)
+
+    def _map_screen_to_base(
+        self, pos: Optional[Tuple[int, int]]
+    ) -> Optional[Tuple[int, int]]:
+        if pos is None:
+            return None
+        display = getattr(self.context, "display", None)
+        if display is None:
+            return pos
+        try:
+            scale, off_x, off_y = display.get_present_params()
+        except Exception:
+            scale, off_x, off_y = 1, 0, 0
+        denom = max(1, int(scale))
+        bx = int((pos[0] - off_x) // denom)
+        by = int((pos[1] - off_y) // denom)
+        return (bx, by)
 
 
 @dataclass

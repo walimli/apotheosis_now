@@ -3,11 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 import pygame
 
-from ecs_core.components import Camera2DComponent, Controller, Health, Position, Soul
+from ecs_core.components import (
+    Camera2DComponent,
+    Controller,
+    Health,
+    PlayerAnimationHandle,
+    Position,
+    Soul,
+)
 from ecs_core.entities.player.player_core import spawn_player
 from services.display.display_system import DisplayService
 from services.inventory import Inventory
@@ -15,6 +23,8 @@ from services.inventory.factory import create_player_inventory
 from services.inventory.lock_state import InventoryLockState
 from services.notifications import NotificationService
 from services.progression import Progression
+from services.player_legacy import PlayerAnimationService
+from states.play.player.attack_service import PlayerAttackService
 from services.ui.ui_manager import UIManager
 
 from states.play.bootstrap import ECSRuntime
@@ -106,6 +116,19 @@ def spawn_player_runtime(
     if notifications is not None:
         notifications.attach_progression(bindings.model.progression)
 
+    animation_service = _attach_player_animation(
+        play_state=play_state,
+        world=world,
+        player_entity=player_entity,
+        bindings=bindings,
+    )
+    _attach_player_attack(
+        play_state=play_state,
+        attack_system=ecs_runtime.attack_system,
+        player_entity=player_entity,
+        animation_service=animation_service,
+    )
+
     return PlayerRuntime(player_entity=player_entity, bindings=bindings)
 
 
@@ -145,3 +168,34 @@ def _sync_camera_component_from_display(
             scroll=(rect.left, rect.top),
         ),
     )
+
+
+def _attach_player_animation(
+    *,
+    play_state: object,
+    world,
+    player_entity: int,
+    bindings: PlayerBindings,
+) -> PlayerAnimationService:
+    project_root = Path(getattr(play_state, "project_root", Path.cwd()))
+    asset_root = project_root / "assets" / "player"
+    service = PlayerAnimationService(asset_root=asset_root)
+    service.bind_inventory(bindings.inventory)
+    world.add(player_entity, PlayerAnimationHandle(service=service))
+    setattr(play_state, "player_animation_service", service)
+    return service
+
+
+def _attach_player_attack(
+    *,
+    play_state: object,
+    attack_system,
+    player_entity: int,
+    animation_service: PlayerAnimationService,
+) -> None:
+    service = PlayerAttackService(
+        attack_system=attack_system,
+        animation_service=animation_service,
+        player_entity=player_entity,
+    )
+    setattr(play_state, "player_attack_service", service)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from ecs_core.components.components import Speed, Velocity
+from ecs_core.components import Speed, Velocity
 
 
 class SpeedSystem:

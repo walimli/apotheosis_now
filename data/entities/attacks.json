@@ -1,0 +1,10 @@
+{
+    "entities": [
+      {
+        "id": "wooden_sword_attack",
+        "display_name": "Wooden Sword Attack",
+        "description": "A basic wooden sword attack."
+      }
+    ]
+  }
+  

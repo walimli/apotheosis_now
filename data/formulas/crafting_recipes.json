@@ -5,7 +5,7 @@
       { "item": "treasure_coin", "qty": 1 },
       { "item": "plant_coin", "qty": 1 }
     ],
-    "output": { "item": "health_pill", "qty": 1 },
+    "output": { "item": "health_medallion", "qty": 1 },
     "success_rate": 1.0,
     "health_cost": 0,
     "soul_cost": 1
@@ -85,10 +85,10 @@
       { "item": "treasure_coin", "qty": 1 },
       { "item": "bone_dust", "qty": 1 }
     ],
-    "output": { "item": "soul_pill", "qty": 1 },
+    "output": { "item": "soul_medallion", "qty": 1 },
     "success_rate": 1.0,
     "health_cost": 0,
     "soul_cost": 1
-  }
+}
 
 ]

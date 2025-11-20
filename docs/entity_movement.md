@@ -7,9 +7,12 @@ Entity motion flows through a small set of ECS components and systems: input upd
 - `ecs_core/components/components.py`
   - `Velocity` stores per-axis speed in pixels/second as floats, written by input/controller systems.
   - `Position` now tracks the integer coordinates used by collision (`x`, `y`) as well as smoothed render-space floats (`render_x`, `render_y`) to preserve sub-pixel movement.
+- `ecs_core/components/physics.py`
+  - `Friction` applies drag to velocity over time, allowing entities (like dropped items) to slide to a stop.
 - `ecs_core/systems/controller.py`
   - Converts player input (or AI intent) into normalized direction vectors and applies speed scalars, writing the resulting floats into `Velocity`.
 - `ecs_core/systems/movement_system.py`
+  - Applies friction (if `Friction` component is present) to decay velocity.
   - Integrates velocity over `dt`, produces proposed float positions, and feeds quantized integer positions into the `CollisionSystem`.
   - After collision resolution, updates `Position.x/y` with the resolved ints and keeps `render_x/y` aligned with the latest float proposal or collision push.
 - `ecs_core/systems/collision/collision.py`

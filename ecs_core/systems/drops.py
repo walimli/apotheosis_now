@@ -1,13 +1,15 @@
 import random
 import pygame
 from typing import Tuple
-from ecs_core.components.components import Drops, Health, Position
+from ecs_core.components import Drops, Health, Position
+from ecs_core.entities.inventory_entities import spawn_coin_at_position
 
 
 class DropsSystem:
     def __init__(self):
         self.world = None
-        self.inventory_service = None  # For coin spawning
+        self.entity_manager = None
+        self.monster_factory = None
 
     def update(self, dt: float):
         for eid, (health, drops) in list(self.world.get_components(Health, Drops)):
@@ -38,11 +40,22 @@ class DropsSystem:
         # XP event - use pygame custom event system
         if drops.xp > 0:
             xp_event = pygame.event.Event(
-                pygame.USEREVENT + 1, {"type": "ADD_XP", "amount": drops.xp}
+                pygame.USEREVENT + 1,
+                {"amount": drops.xp},
             )
             pygame.event.post(xp_event)
 
     def _spawn_coin(self, coin_name: str, pos: Tuple[int, int]):
-        # Create pickup entity from inventory data
-        pickup_eid = self.inventory_service.create_pickup(coin_name, pos)
-        # Assumes inventory_service spawns entity with Pickup component
+        # Spawn coin entity with bounce behavior
+        if self.monster_factory:
+            self.monster_factory.spawn_attack_entity(coin_name, pos)
+        elif self.world and self.entity_manager:
+            # Fallback if factory not bound (though it should be)
+            spawn_coin_at_position(
+                self.world,
+                self.entity_manager,
+                pos,
+                coin_value=1,
+                registry_id=coin_name,
+                inventory_item_id=coin_name,
+            )

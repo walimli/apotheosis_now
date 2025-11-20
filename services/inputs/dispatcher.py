@@ -85,6 +85,11 @@ class PlayInputBus:
         self.bindings = new_bindings
         self._rebuild_lookup()
 
+    def full_reset(self) -> None:
+        """Clear all input state, including held keys/axes, to avoid stale input."""
+        self.state.clear_all()
+        self._axis_sources.clear()
+
     def begin_rebind(
         self,
         action: PlayAction,

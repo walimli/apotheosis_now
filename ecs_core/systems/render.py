@@ -4,6 +4,8 @@ from typing import Dict, Optional, Tuple
 
 from ecs_core.systems_base import System
 from ecs_core.components import (
+    Animation,
+    AnimationState,
     Camera2DComponent,
     Position,
     Renderable,
@@ -18,6 +20,7 @@ class RenderSystem(System):
         self.camera_entity_id = camera_entity_id
         self._sprite_cache: Dict[str, pygame.Surface] = {}
         self._scaled_cache: Dict[Tuple[str, Optional[Tuple[int, int]], float], pygame.Surface] = {}
+        self._missing_logged: set[str] = set()
 
     def update(self, dt):
         if self.camera_entity_id is None:
@@ -43,7 +46,12 @@ class RenderSystem(System):
             pygame.draw.circle(self.screen, rend.color, (int(sx), int(sy)), rend.radius)
 
     def _render_sprite_entities(self, camera_x: int, camera_y: int) -> None:
-        for _entity, pos, sprite in self.world.view(Position, RenderableEntityComponent):
+        for entity, pos, sprite in self.world.view(Position, RenderableEntityComponent):
+            # Skip entities that are animated; AnimationSystem will draw them.
+            if self.world.get(entity, Animation) is not None and self.world.get(
+                entity, AnimationState
+            ) is not None:
+                continue
             surface = self._get_sprite_surface(sprite)
             if surface is None:
                 continue
@@ -88,11 +96,17 @@ class RenderSystem(System):
 
         sprite_path = Path(path)
         if not sprite_path.is_file():
+            if cache_key not in self._missing_logged:
+                self._missing_logged.add(cache_key)
+                print(f"[RenderSystem] Sprite not found: {sprite_path}")
             return None
 
         try:
             surface = pygame.image.load(sprite_path.as_posix()).convert_alpha()
-        except pygame.error:
+        except pygame.error as exc:
+            if cache_key not in self._missing_logged:
+                self._missing_logged.add(cache_key)
+                print(f"[RenderSystem] Failed to load sprite '{sprite_path}': {exc}")
             return None
 
         self._sprite_cache[cache_key] = surface

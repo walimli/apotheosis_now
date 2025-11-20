@@ -14,10 +14,12 @@ class PauseState:
         return self.game.states["play"]
 
     def _pause_time(self):
+        self._reset_input_state()
         self.play_state.time_manager.pause()
         self._time_paused = True
 
     def _resume_time(self):
+        self._reset_input_state()
         self.play_state.time_manager.resume()
         self._time_paused = False
 
@@ -38,3 +40,9 @@ class PauseState:
 
     def render(self, base_surface):
         self.play_state.render(base_surface)
+
+    def _reset_input_state(self):
+        input_bus = getattr(self.play_state, "input_bus", None)
+        reset = getattr(input_bus, "full_reset", None)
+        if callable(reset):
+            reset()

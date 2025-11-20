@@ -1,0 +1,11 @@
+{
+  "spawn_events": {
+    "wooden_sword_attack": {
+      "spawn_chance": 1.0,
+      "spawn_per": "event",
+      "spawn_number": 1,
+      "share_tile": true,
+      "exact_position": "required"
+    }
+  }
+}

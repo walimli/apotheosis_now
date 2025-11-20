@@ -13,9 +13,12 @@ from .components import (
     Health,
     Soul,
     Drops,
+    PickupComponent,
     Evolve,
     Controller,
     ControllerType,
+    Lifeline,
+    Damage,
 )
 
 # Item and interaction components
@@ -41,9 +44,10 @@ from .rendering_components import (
     RenderableEntityComponent,
 )
 
-from .components import (
-    Renderable,
-)
+from .components import Renderable
+from .hit_box import HitBox
+from .attack import AttackComponent
+from .static_body import StaticBody
 
 # Animation components
 from .animation_components import (
@@ -54,8 +58,9 @@ from .animation_components import (
 # Collision component
 from .collider import Collider
 from .aggressive_components import AggressivePathfindingComponent
-
+from .player_animation import PlayerAnimationHandle
 from ecs_core.systems.soul.safe_zone import SafeZoneComponent
+from .protection import ProtectionZoneComponent
 
 # Define what gets exported when using "from ecs_core.components import *"
 __all__ = [
@@ -67,9 +72,12 @@ __all__ = [
     "Health",
     "Soul",
     "Drops",
+    "PickupComponent",
     "Evolve",
     "Controller",
     "ControllerType",
+    "Lifeline",
+    "Damage",
     # Items and interaction
     "HeldItem",
     "Harvestable",
@@ -84,13 +92,21 @@ __all__ = [
     "VoidVisualComponent",
     "TerrainChunkComponent",
     "RenderableEntityComponent",
+    "HitBox",
+    # Combat
+    "AttackComponent",
     # Animation
     "Animation",
     "AnimationState",
     # Collision
     "Collider",
+    "PlayerAnimationHandle",
+    # Static bodies
+    "StaticBody",
     # Aggressive AI
     "AggressivePathfindingComponent",
     # Soul/Safe Zones
     "SafeZoneComponent",
+    # Protection
+    "ProtectionZoneComponent",
 ]

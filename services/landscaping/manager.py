@@ -126,12 +126,14 @@ class LandscapingSystem:
         if self._is_pick_selected():
             target = self._hover_state.harvest_target
             if target is not None:
+                self._trigger_attack_animation()
                 self._perform_harvest(target)
                 performed = True
         if not performed:
             placement = self._selected_placement()
             target = self._hover_state.placement_target
             if placement is not None and target is not None:
+                self._trigger_placement_animation()
                 self._perform_placement(target)
                 performed = True
         if performed:
@@ -192,8 +194,6 @@ class LandscapingSystem:
         if mutation is None:
             return
 
-        self._trigger_attack_animation()
-
         awarded: List[Tuple[str, int]] = []
         for reward_id, qty in rewards:
             remainder = self._inventory.add(reward_id, qty)
@@ -249,9 +249,6 @@ class LandscapingSystem:
 
         # Selection handled by unified targeting; no hover refresh
 
-        controller = getattr(self._player, "controller", None)
-        if controller is not None:
-            controller.handle_inventory_use(pick_equipped=False)
 
     def _player_world_center(self) -> Optional[Tuple[float, float]]:
         if self._world is None or self._player_entity is None:
@@ -298,10 +295,9 @@ class LandscapingSystem:
         return (bx, by)
 
     def _trigger_attack_animation(self) -> None:
-        controller = getattr(self._player, "controller", None)
-        if controller is None:
-            return
-        controller.handle_inventory_use(pick_equipped=True)
+        service = getattr(self._play_state, "player_animation_service", None)
+        if service and hasattr(service, "play_pick_swing"):
+            service.play_pick_swing()
 
     def _notify_tile_harvest(
         self,
@@ -322,6 +318,11 @@ class LandscapingSystem:
                 listener(event)
             except Exception:
                 continue
+
+    def _trigger_placement_animation(self) -> None:
+        service = getattr(self._play_state, "player_animation_service", None)
+        if service and hasattr(service, "play_interact"):
+            service.play_interact()
 
 
 __all__ = ["LandscapingSystem"]

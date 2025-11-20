@@ -144,10 +144,32 @@ class CollisionSystem:
         )
 
     def _resolve_overlap(self, id_a: int, id_b: int, info: CollisionEvent):
+        # Static bodies do not move; apply full correction to the movable entity.
+        coll_a = self.colliders.get(id_a)
+        coll_b = self.colliders.get(id_b)
+        a_static = getattr(coll_a, "immovable", False)
+        b_static = getattr(coll_b, "immovable", False)
+
         correction = (
             info.normal[0] * info.penetration * 0.5,
             info.normal[1] * info.penetration * 0.5,
         )
+
+        if a_static and b_static:
+            return
+        if a_static and not b_static:
+            pos_b = list(self.entity_pos[id_b])
+            pos_b[0] += info.normal[0] * info.penetration
+            pos_b[1] += info.normal[1] * info.penetration
+            self.entity_pos[id_b] = tuple(pos_b)
+            return
+        if b_static and not a_static:
+            pos_a = list(self.entity_pos[id_a])
+            pos_a[0] -= info.normal[0] * info.penetration
+            pos_a[1] -= info.normal[1] * info.penetration
+            self.entity_pos[id_a] = tuple(pos_a)
+            return
+
         pos_a = list(self.entity_pos[id_a])
         pos_b = list(self.entity_pos[id_b])
         pos_a[0] -= correction[0]

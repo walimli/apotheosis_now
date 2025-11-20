@@ -19,14 +19,16 @@ class EvolvableEntityRegistry:
         project_root = Path(__file__).resolve().parents[2]
         default_path = project_root / "data" / "entities" / "monster_manual.json"
         self._metadata_path = metadata_path or default_path
-        self._metadata: Dict[str, Dict[str, str]] = self._load_metadata()
+        self._metadata: Dict[str, Dict[str, str]] = {}
+        self._metadata.update(self._load_metadata_file(self._metadata_path))
+        self._merge_additional_metadata(project_root / "data" / "entities" / "attacks.json")
         self._factories: Dict[str, SpawnFactory] = {}
 
-    def _load_metadata(self) -> Dict[str, Dict[str, str]]:
-        if not self._metadata_path.exists():
+    def _load_metadata_file(self, path: Path) -> Dict[str, Dict[str, str]]:
+        if not path.exists():
             return {}
         try:
-            raw = json.loads(self._metadata_path.read_text(encoding="utf-8"))
+            raw = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             return {}
 
@@ -41,6 +43,11 @@ class EvolvableEntityRegistry:
                 "description": entry.get("description", entry_id),
             }
         return metadata
+
+    def _merge_additional_metadata(self, path: Path) -> None:
+        extra = self._load_metadata_file(path)
+        for key, value in extra.items():
+            self._metadata.setdefault(key, value)
 
     def register_factory(self, entity_id: str, factory: SpawnFactory) -> None:
         if entity_id not in self._metadata:

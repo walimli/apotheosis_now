@@ -15,9 +15,17 @@ from ecs_core.systems.aggressive_pathfinding.bootstrap import (
     setup_aggressive_pathfinding,
 )
 from ecs_core.systems.animation.animation import AnimationSystem
+from ecs_core.systems.attack import AttackSystem
 from ecs_core.systems.controller import ControllerSystem
 from ecs_core.systems.evolve import EvolveSystem
+from ecs_core.systems.damage import DamageSystem
+from ecs_core.systems.drops import DropsSystem
+from ecs_core.systems.health import HealthSystem
+from ecs_core.systems.hit_box import HitBoxSystem
 from ecs_core.systems.movement import MovementSystem
+from ecs_core.systems.lifeline import LifelineSystem
+from ecs_core.systems.player_animation import PlayerAnimationSystem
+from ecs_core.systems.pickup import PickupSystem
 from ecs_core.systems.render import RenderSystem
 from ecs_core.systems.speed import SpeedSystem
 from ecs_core.systems.soul.soul import SoulSystem
@@ -41,6 +49,14 @@ class ECSRuntime:
     movement_system: MovementSystem
     soul_system: SoulSystem
     evolve_system: EvolveSystem
+    health_system: HealthSystem
+    damage_system: DamageSystem
+    drops_system: DropsSystem
+    lifeline_system: LifelineSystem
+    hit_box_system: HitBoxSystem
+    player_animation_system: PlayerAnimationSystem
+    attack_system: AttackSystem
+    pickup_system: PickupSystem
     aggressive_pathfinding_manager: AggressivePathfindingManager
     aggressive_ai_service: AggressiveAIService
 
@@ -88,6 +104,29 @@ def create_ecs_runtime(
 
     movement_system = MovementSystem(world)
     speed_system = SpeedSystem(world)
+    hit_box_system = HitBoxSystem(world, display=display, camera_entity=camera_entity)
+    player_animation_system = PlayerAnimationSystem(
+        world=world, camera_entity=camera_entity
+    )
+    attack_system = AttackSystem(world)
+    attack_system.monster_factory = services.monster_factory
+    pickup_system = PickupSystem(world)
+
+    health_system = HealthSystem()
+    health_system.world = world
+    health_system.time_service = services.time_manager
+    health_system.audio_service = services.audio_manager
+
+    damage_system = DamageSystem(world)
+    damage_system.movement_system = movement_system
+    damage_system.health_system = health_system
+    damage_system.time_service = services.time_manager
+
+    drops_system = DropsSystem()
+    drops_system.world = world
+    drops_system.entity_manager = entity_manager
+    drops_system.monster_factory = services.monster_factory
+    pickup_system.movement_system = movement_system
 
     proxy = _PathfindingPlayStateProxy(play_state, world, movement_system)
     aggressive_manager, aggressive_service = setup_aggressive_pathfinding(proxy)
@@ -104,6 +143,9 @@ def create_ecs_runtime(
     evolve_system.entity_manager = entity_manager
     evolve_system.time_service = services.time_manager
 
+    lifeline_system = LifelineSystem()
+    lifeline_system.world = world
+
     services.monster_factory.bind_world(world, entity_manager)
 
     return ECSRuntime(
@@ -117,6 +159,14 @@ def create_ecs_runtime(
         movement_system=movement_system,
         soul_system=soul_system,
         evolve_system=evolve_system,
+        health_system=health_system,
+        damage_system=damage_system,
+        drops_system=drops_system,
+        lifeline_system=lifeline_system,
+        hit_box_system=hit_box_system,
+        player_animation_system=player_animation_system,
+        attack_system=attack_system,
+        pickup_system=pickup_system,
         aggressive_pathfinding_manager=aggressive_manager,
         aggressive_ai_service=aggressive_service,
     )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-from ecs_core.components.components import Position, Soul
+from ecs_core.components import Position, Soul
 from ecs_core.entities.entities import Entity
 from ecs_core.systems_base import System
 from services.time.time_events import TimeEvent, TimeEventType, TimePhase

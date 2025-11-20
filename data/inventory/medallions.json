@@ -42,6 +42,14 @@
         "description": "Starter pickaxe for harvesting tiles"
       },
       {
+        "id": "sword_wooden_medallion",
+        "display_name": "Wooden Sword",
+        "image_path": "assets/objects/tools/sword_wooden.png",
+        "stackable": false,
+        "max_stack": 1,
+        "description": "Starter pickaxe for harvesting tiles"
+      },
+      {
         "id": "stone_fence_coin",
         "display_name": "Stone Fence",
         "image_path": "assets/coins/inventory/stone_fence_coin.png",

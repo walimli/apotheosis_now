@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ecs_core.components.components import Evolve, Position
+from ecs_core.components import Evolve, Position
 from ecs_core.entities.entities import EntityManager
 from services.monster_factory.evolve_registry import (
     EvolvableEntityRegistry,

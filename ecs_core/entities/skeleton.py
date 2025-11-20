@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-from constants import LAYER_ENEMY, LAYER_PLAYER, LAYER_WALL
+from constants import LAYER_ENEMY, LAYER_PLAYER, LAYER_PROJECTILE, LAYER_WALL
 from ecs_core.components import (
     Animation,
     AnimationState,
@@ -79,7 +79,7 @@ def spawn_skeleton(
             offset_x=int(cfg.collider_offset[0]),
             offset_y=int(cfg.collider_offset[1]),
             layer=LAYER_ENEMY,
-            mask=LAYER_PLAYER | LAYER_WALL | LAYER_ENEMY,
+            mask=LAYER_PLAYER | LAYER_WALL | LAYER_ENEMY | LAYER_PROJECTILE,
             is_trigger=False,
         ),
     )

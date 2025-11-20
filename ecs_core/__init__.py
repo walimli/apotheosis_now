@@ -2,7 +2,7 @@
 from .worlds.world import World
 from .entities.entities import Entity, EntityManager
 from .systems_base import System
-from .components.components import *
+from .components import *
 from .components.rendering_components import (
     Camera2DComponent,
     RenderableEntityComponent,

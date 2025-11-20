@@ -11,3 +11,4 @@ class Collider:
     mask: int = constants.LAYER_ENEMY
     is_trigger: bool = False
     enabled: bool = True
+    immovable: bool = False

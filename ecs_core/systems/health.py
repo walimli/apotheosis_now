@@ -1,4 +1,4 @@
-from ecs_core.components.components import Health, Position
+from ecs_core.components import Health, Position
 
 
 class HealthSystem:

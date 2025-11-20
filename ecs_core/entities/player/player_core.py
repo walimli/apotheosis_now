@@ -6,8 +6,15 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from constants import LAYER_ENEMY, LAYER_PICKUP, LAYER_PLAYER, LAYER_WALL
-from ecs_core.components import Controller, Health, Position, Speed, Soul, Velocity
-from ecs_core.components.animation_components import Animation, AnimationState
+from ecs_core.components import (
+    AttackComponent,
+    Controller,
+    Health,
+    Position,
+    Speed,
+    Soul,
+    Velocity,
+)
 from ecs_core.components.collider import Collider
 from ecs_core.components.entity_classes import Player
 from ecs_core.entities.entities import Entity, EntityManager
@@ -20,11 +27,17 @@ class PlayerConfig:
 
     spawn_position: Tuple[float, float] = (400.0, 300.0)
     speed: float = 512.0
-    collider_diameter: int = 64
+    collider_diameter: int = 32
     animation_size: int = 32
     max_health: int = 10
     controller_type: str = "player_input"
     max_soul: int = 100
+    attack_id: str = "wooden_sword_attack"
+    attack_cooldown: float = 0.5
+    cooldown_timer: float = 0.0
+    spawn_offset: float = 16.0  # Extra distance beyond collider radius
+    offset_x: float = 0.0  # Fine-tuning offset along X after facing application
+    offset_y: float = -12.0  # Fine-tuning offset along Y after facing application
 
 
 def spawn_player(
@@ -66,23 +79,18 @@ def spawn_player(
             is_trigger=False,
         ),
     )
-
-    anim_size = int(cfg.animation_size)
     world.add(
         entity,
-        Animation(
-            sheet_path=None,
-            sheet_w=anim_size,
-            sheet_h=anim_size,
-            frame_w=anim_size,
-            frame_h=anim_size,
-            row_order=["idle"],
-            actions={"idle": 1},
-            fps=1.0,
-            flip_x_for_left=True,
+        AttackComponent(
+            attack_id=cfg.attack_id,
+            attack_cooldown=cfg.attack_cooldown,
+            cooldown_timer=cfg.cooldown_timer,
+            spawn_offset=cfg.spawn_offset,
+            offset_x=cfg.offset_x,
+            offset_y=cfg.offset_y,
         ),
     )
-    world.add(entity, AnimationState())
+
     return entity
 
 

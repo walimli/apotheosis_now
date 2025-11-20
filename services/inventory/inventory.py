@@ -62,7 +62,13 @@ class Inventory:
         return self.slots[self.selected_index]
 
     # --- Item Management ---
-    def add(self, item_id: str, qty: int) -> int:
+    def add(
+        self,
+        item_id: str,
+        qty: int,
+        *,
+        prefer_slot: int | None = None,
+    ) -> int:
         """Add qty of item_id to inventory.
         Returns remainder not added (0 if fully added).
         """
@@ -87,8 +93,15 @@ class Inventory:
                         publish_audio_event("player.inventory.added")
                     return 0
 
-        # 2) Fill empty slots
-        for slot in self.slots:
+        # 2) Fill empty slots (optionally preferring a specific slot index)
+        empty_indices = list(range(len(self.slots)))
+        if prefer_slot is not None:
+            indices = [prefer_slot] + [i for i in empty_indices if i != prefer_slot]
+        else:
+            indices = empty_indices
+
+        for idx in indices:
+            slot = self.slots[idx]
             if slot.is_empty():
                 put = min(stack_max, remaining)
                 if put > 0:

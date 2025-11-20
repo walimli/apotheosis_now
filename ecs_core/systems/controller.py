@@ -1,6 +1,6 @@
 from typing import Dict, Callable, Tuple
 import math
-from ecs_core.components.components import Controller, Speed, Velocity
+from ecs_core.components import Controller, Speed, Velocity
 
 
 class ControllerSystem:

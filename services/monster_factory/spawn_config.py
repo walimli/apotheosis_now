@@ -111,7 +111,7 @@ class SpawnConfigLoader:
         if not 0.0 <= spawn_chance <= 1.0:
             raise ValueError(f"spawn_chance must be within [0,1] in {path}")
         spawn_per = str(payload.get("spawn_per", "island")).strip().lower()
-        if spawn_per not in {"island", "void", "tile", "event"}:
+        if spawn_per not in {"island", "void", "tile", "event", "chunk"}:
             raise ValueError(f"spawn_per '{spawn_per}' invalid in {path}")
 
         eligible_tiles = payload.get("eligible_tiles")

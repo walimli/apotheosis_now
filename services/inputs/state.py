@@ -62,3 +62,13 @@ class PlayInputState:
 
     def get_axis(self, action: PlayAction) -> Tuple[float, float]:
         return self.axes.get(action, (0.0, 0.0))
+
+    def clear_all(self) -> None:
+        """Reset axes/buttons so stale input does not persist across state changes."""
+        self.axes.clear()
+        self.buttons.clear()
+        self.scroll_delta = 0
+        self.hotbar_scroll = 0
+        self.hotbar_select = None
+        self.cursor_delta = (0, 0)
+        self.cursor_screen_delta = (0, 0)
